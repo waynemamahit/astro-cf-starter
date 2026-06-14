@@ -1,17 +1,68 @@
 {
-  "name": "astro-cf-starter",
-  "type": "module",
-  "version": "0.0.1",
-  "engines": {
-    "node": ">=22.12.0"
-  },
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
-  },
-  "dependencies": {
-    "astro": "^6.4.4"
-  }
+	"name": "astro-cf-starter",
+	"type": "module",
+	"version": "0.0.1",
+	"engines": {
+		"node": "24.16.0"
+	},
+	"scripts": {
+		"postinstall": "pnpm typecheck",
+		"astro": "astro",
+		"build": "astro build",
+		"dev": "astro dev",
+		"preview": "astro build && astro preview",
+		"lint": "biome check --write",
+		"typecheck": "wrangler types && tsc -b",
+		"test": "vitest",
+		"test:e2e": "playwright test"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^13.7.0",
+		"@astrojs/mdx": "^6.0.3",
+		"@astrojs/react": "^5.0.7",
+		"@astrojs/solid-js": "^6.0.1",
+		"@astrojs/vue": "^6.0.1",
+		"@hono/zod-validator": "^0.8.0",
+		"@lucide/vue": "^1.18.0",
+		"astro": "^6.4.6",
+		"awilix": "^13.0.4",
+		"bcryptjs": "^3.0.3",
+		"drizzle-orm": "^0.45.2",
+		"hono": "^4.12.25",
+		"hono-rate-limiter": "^0.5.3",
+		"lucide-react": "^1.18.0",
+		"lucide-solid": "^1.18.0",
+		"postgres": "^3.4.9",
+		"react": "^19.2.7",
+		"react-dom": "^19.2.7",
+		"solid-js": "^1.9.13",
+		"vue": "^3.5.38",
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.0",
+		"@playwright/test": "^1.60.0",
+		"@solidjs/testing-library": "^0.8.10",
+		"@tailwindcss/vite": "^4.3.1",
+		"@testing-library/dom": "^10.4.1",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
+		"@testing-library/vue": "^8.1.0",
+		"@types/node": "^25.9.3",
+		"@types/pg": "^8.20.0",
+		"@types/react": "^19.2.17",
+		"@types/react-dom": "^19.2.3",
+		"@vue/test-utils": "^2.4.11",
+		"daisyui": "^5.5.23",
+		"drizzle-kit": "^0.31.10",
+		"jsdom": "^29.1.1",
+		"tailwindcss": "^4.3.1",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8",
+		"wrangler": "^4.100.0"
+	},
+	"overrides": {
+		"vite": "^7"
+	}
 }

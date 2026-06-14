@@ -1,8 +1,10 @@
 # build output
 dist/
+/coverage
 
 # generated types
 .astro/
+*.tsbuildinfo
 
 # dependencies
 node_modules/
@@ -22,3 +24,27 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# cloudflare
+.wrangler/
+.mf
+.dev.vars*
+wrangler.json
+worker-configuration.d.ts
+!.dev.vars.example
+!.env.example
+
+# OpenSpec
+**/openspec-*/*.md
+**/opsx-*.md
+**/opsx-*.toml
+**/opsx-*.prompt
+**/commands/opsx/*.md
+**/commands/opsx/*.toml
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

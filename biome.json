@@ -1,0 +1,77 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false
+	},
+	"html": {
+		"formatter": {
+			"enabled": true
+		},
+		"experimentalFullSupportEnabled": true
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab"
+	},
+	"linter": {
+		"enabled": true,
+		"domains": {
+			"react": "none",
+			"solid": "none",
+			"vue": "none"
+		},
+		"rules": {
+			"preset": "recommended"
+		}
+	},
+	"javascript": {
+		"experimentalEmbeddedSnippetsEnabled": true,
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"assist": {
+		"enabled": true,
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["**/react/**"],
+			"linter": {
+				"domains": {
+					"react": "recommended"
+				}
+			}
+		},
+		{
+			"includes": ["**/solid/**"],
+			"linter": {
+				"domains": {
+					"solid": "recommended"
+				}
+			}
+		},
+		{
+			"includes": ["**/vue/**", "**/*.vue"],
+			"linter": {
+				"domains": {
+					"vue": "recommended"
+				}
+			}
+		}
+	]
+}

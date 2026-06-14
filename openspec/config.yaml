@@ -1,0 +1,1715 @@
+schema: spec-driven
+
+context: |
+  # Project Context
+
+  ## Purpose
+
+  A production-ready full-stack starter template built on **Astro (Islands Architecture)** with **Cloudflare Workers**. The frontend renders interactive islands in **React, Vue, and SolidJS** on top of Astro's server-first model, while the backend is a **Hono** API mounted inside the same Worker (`src/app.ts`) that delegates SSR to Astro via `@astrojs/cloudflare`. The project provides a scalable, type-safe foundation with comprehensive Cloudflare service integrations, clean architecture following SOLID principles, and specification-driven development with OpenSpec.
+
+  **Goals:**
+
+  - Provide a robust, type-safe development experience with zero tolerance for `any` types
+  - Ship minimal client JavaScript via Astro islands — hydrate React/Vue/SolidJS components only when needed (`client:*` directives)
+  - Enable rapid feature development with clean architecture patterns (Engine/Facade + Service layers)
+  - Ensure high code quality through comprehensive testing (90%+ coverage across unit, integration, and E2E)
+  - Support internationalization (Astro i18n + i18next) and accessibility (ARIA, semantic HTML, SEO) out of the box
+  - Leverage Cloudflare's edge computing capabilities (D1, Hyperdrive, KV, R2, Durable Objects, Vectorize, Workers AI, Browser Rendering)
+  - Implement security best practices (CSRF, CORS, rate limiting, secure headers, sensitive data sanitization)
+
+  ---
+
+  ## Tech Stack
+
+  ### Core Technologies
+
+  | Category               | Technology | Version | Purpose                                        |
+  | ---------------------- | ---------- | ------- | ---------------------------------------------- |
+  | **Runtime (local)**    | Node.js    | 24.16+  | Local tooling runtime (pinned via `engines`)   |
+  | **Runtime (edge)**     | workerd    | latest  | Cloudflare Workers runtime (production target) |
+  | **Package Manager**    | PNPM       | 11+     | Fast, efficient dependency management          |
+  | **Language**           | TypeScript | 6.0+    | Type safety, **no `any` type allowed**         |
+  | **Formatting/Linting** | Biome.js   | 2.5+    | Fast, unified code quality tooling             |
+  | **Build Tool**         | Vite       | 7+      | Used by Astro for build and dev server         |
+
+  ### Frontend
+
+  | Technology                  | Version | Purpose                                                              |
+  | --------------------------- | ------- | -------------------------------------------------------------------- |
+  | **Astro**                   | 6.4+    | Server-first framework, islands architecture, `output: "server"`     |
+  | **React**                   | 19.2+   | Islands under `src/components/react/*` (hooks, Suspense)             |
+  | **Vue**                     | 3.5+    | Islands under `src/components/vue/*` (`<script setup>`)              |
+  | **SolidJS**                 | 1.9+    | Islands under `src/components/solid/*` (fine-grained signals)        |
+  | **@astrojs/mdx**            | 6.0+    | MDX content pages/components (`.mdx`) with island support           |
+  | **TailwindCSS**             | 4.3+    | Utility-first CSS via `@tailwindcss/vite`, mobile-first responsive   |
+  | **DaisyUI**                 | 5.5+    | Component library + themes (default: **light**) via `@plugin`        |
+  | **Lucide**                  | 1.17+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
+  | **Astro i18n + i18next**    | latest  | Frontend i18n via Astro built-in routing + i18next catalogs         |
+
+  ### Backend
+
+  | Technology              | Version | Purpose                                                       |
+  | ----------------------- | ------- | ------------------------------------------------------------- |
+  | **Hono**                | 4.12+   | Edge-native API mounted in the Worker (`src/app.ts`), SOLID   |
+  | **@astrojs/cloudflare** | 13.7+   | Astro adapter; Hono delegates SSR via `handle()`              |
+  | **i18next**             | latest  | Backend i18n for API messages, integrated with Hono           |
+  | **Drizzle ORM**         | 0.45+   | Type-safe database + migrations (separate D1 + Hyperdrive)    |
+  | **Zod**                 | 4+      | Runtime schema validation (shared frontend + backend)         |
+  | **Awilix**              | 13+     | Dependency injection container (interface-based bindings)     |
+  | **hono-rate-limiter**   | 0.5+    | Rate limiting with Cloudflare RateLimit bindings              |
+  | **postgres**            | 3.4+    | PostgreSQL driver used through Hyperdrive                      |
+  | **bcryptjs**            | 3+      | Password hashing                                              |
+
+  ### Testing
+
+  | Technology                      | Version | Purpose                                          |
+  | ------------------------------- | ------- | ------------------------------------------------ |
+  | **Vitest**                      | 4.1+    | Unit + integration tests (`vitest/config` + jsdom) |
+  | **@testing-library/react**      | 16.3+   | React island component testing                   |
+  | **@testing-library/vue**        | 8.1+    | Vue island component testing                     |
+  | **@solidjs/testing-library**    | 0.8+    | SolidJS island component testing                 |
+  | **@testing-library/dom**        | 10.4+   | Shared DOM queries across frameworks             |
+  | **@testing-library/user-event** | 14.6+   | Realistic user interaction simulation            |
+  | **@testing-library/jest-dom**   | 6.9+    | Extended DOM matchers for assertions             |
+  | **Playwright**                  | 1.60+   | End-to-end testing across browsers               |
+  | **jsdom**                       | 29.1+   | DOM environment for Vitest component tests       |
+  | **@vitest/coverage-v8**         | 4.1+    | Coverage provider with 90% threshold enforcement |
+
+  ### Cloudflare Services
+
+  | Service               | Binding          | Purpose                                          |
+  | --------------------- | ---------------- | ------------------------------------------------ |
+  | **D1**                | `D1`             | SQLite at the edge — primary edge data storage   |
+  | **Hyperdrive**        | `HYPERDRIVE`     | PostgreSQL connection pooling (Docker locally)   |
+  | **KV**                | `KV`             | Caching, session data, inter-DO communication    |
+  | **R2**                | `R2`             | S3-compatible object storage (paid plan)         |
+  | **Durable Objects**   | `DO_COUNTER`     | Stateful WebSocket/SSE, queues (KV for inter-DO) |
+  | **Vectorize**         | `VECTORIZE`      | Vector embeddings for ML data models (`remote`)  |
+  | **Workers AI**        | `AI`             | AI inference and automation on the edge (`remote`)|
+  | **Browser Rendering** | `BROWSER`        | Server-side browser automation                   |
+  | **Rate Limiter**      | `*_RATE_LIMITER` | Request rate limiting at the edge                |
+
+  ### Infrastructure
+
+  | Technology                  | Purpose                                            |
+  | --------------------------- | -------------------------------------------------- |
+  | **Docker Compose**          | Local PostgreSQL for Hyperdrive development        |
+  | **Wrangler**                | 4.100+, Cloudflare CLI for dev, types, deployment  |
+  | **@astrojs/cloudflare**     | 13.7+, Astro → Cloudflare Workers adapter          |
+  | **scripts/gen-wrangler.js** | Resolves `${...}` placeholders in `wrangler.jsonc` |
+
+  ---
+
+  ## Islands & Framework Selection
+
+  Astro renders everything server-first and ships **zero client JS by default**. Interactivity is
+  added only through **islands** (React, Vue, or SolidJS) hydrated with a `client:*` directive.
+  All three frameworks are available; pick **one framework per island/feature** and keep islands thin.
+
+  ### Selection Rule (performance first, compatibility fallback)
+
+  **Priority 1 — Performance:** Default to the framework with the smallest runtime / least hydration
+  cost for the interaction. **SolidJS** is the default for performance-sensitive islands (fine-grained
+  signals, no virtual DOM, tiny runtime). **Vue** is the next choice for ergonomic, moderately
+  interactive UI (SFCs, reactivity, small footprint).
+
+  **Priority 2 — Compatibility:** If the required capability or third-party library is missing/weaker
+  in the higher-performance framework, choose the framework with the **best compatibility for that
+  requirement**. **React** has the largest ecosystem — use it when a feature depends on a
+  React-only library, richer tooling, or broader community support that Solid/Vue cannot satisfy.
+
+  | Need                                              | Preferred framework | Why                                              |
+  | ------------------------------------------------- | ------------------- | ------------------------------------------------ |
+  | Max performance, fine-grained reactivity          | **SolidJS**         | Smallest runtime, no VDOM, signal-based updates  |
+  | Ergonomic interactive UI, forms, moderate state   | **Vue**             | SFCs, reactivity, small bundle                   |
+  | Library/ecosystem compatibility is the constraint | **React**           | Largest ecosystem; widest third-party support    |
+
+  > **Decision flow:** start with SolidJS for performance → if DX/feature fit is better, use Vue →
+  > if a required library/integration only works (or works best) in React, use React. Document the
+  > chosen framework + the reason (performance vs compatibility) in the change `design.md`.
+
+  ### Island Scoping & Hydration
+
+  - **Folder scoping** (matches `astro.config.mjs` integration `include` globs):
+    React `**/react/*`, SolidJS `**/solid/*`, Vue `**/vue/*`
+  - **Hydration directives** — choose the lightest that satisfies UX:
+    - `client:idle` — non-critical UI (theme/language selectors, menus)
+    - `client:visible` — below-the-fold widgets (lazy-hydrate on scroll)
+    - `client:load` — immediately-interactive, above-the-fold islands
+    - `client:only="react|vue|solid"` — client-only islands (no SSR)
+  - **Keep islands thin** — islands call frontend engines/services from event handlers; no business
+    logic inside the component. Minimize props passed across the island boundary (must be serializable).
+
+  ---
+
+  ## Project Structure
+
+  ```
+  project-root/
+  ├── src/                             # Astro app + backend (Worker source)
+  │   ├── app.ts                       # Worker entry — Hono app wraps Astro (handle()) + exports DOs
+  │   ├── pages/                       # Astro pages (file-based routing, SSR)
+  │   │   └── index.astro
+  │   ├── layouts/                     # Astro layouts (main layout: theme + language selectors)
+  │   │   └── Layout.astro
+  │   ├── components/                  # UI components
+  │   │   ├── Welcome.astro            # Static Astro components (zero JS by default)
+  │   │   ├── react/                   # React islands     — matched by `**/react/*`
+  │   │   │   ├── Counter.tsx
+  │   │   │   └── __tests__/           # React component unit tests
+  │   │   ├── vue/                     # Vue islands       — matched by `**/vue/*`
+  │   │   │   ├── Counter.vue
+  │   │   │   └── __tests__/           # Vue component unit tests
+  │   │   └── solid/                   # SolidJS islands   — matched by `**/solid/*`
+  │   │       ├── Counter.tsx
+  │   │       └── __tests__/           # Solid component unit tests
+  │   ├── containers/                  # Frontend DI container (Awilix)
+  │   ├── engines/                     # Frontend business-logic orchestrators
+  │   │   └── __tests__/
+  │   ├── services/                    # Frontend services (API client, OAuth, payment, map, ...)
+  │   │   └── __tests__/
+  │   ├── i18n/                        # Frontend i18n (Astro routing + i18next catalogs)
+  │   │   ├── config.ts                # i18next instance + Astro locale helpers
+  │   │   └── locales/
+  │   │       ├── en/{common,errors,validation}.json
+  │   │       └── id/{common,errors,validation}.json
+  │   ├── schemas/                     # Frontend-specific Zod schemas (forms, UI state)
+  │   ├── types/                       # Frontend-specific TypeScript types
+  │   ├── utils/                       # Frontend utilities
+  │   │   └── __tests__/
+  │   ├── styles/
+  │   │   └── global.css               # TailwindCSS 4 + DaisyUI plugin
+  │   ├── assets/                      # Astro-optimized assets (svg, images)
+  │   └── server/                      # Backend (Hono on Cloudflare Workers)
+  │       ├── routes/
+  │       │   └── v1/                  # Versioned API endpoints
+  │       │       ├── index.ts
+  │       │       └── __tests__/       # Route tests (unit + integration)
+  │       ├── containers/              # Backend DI container (Awilix)
+  │       ├── engines/                 # Backend business-logic orchestrators
+  │       │   └── __tests__/
+  │       ├── services/                # Backend services (D1, Hyperdrive, KV, R2, AI, Logger, ...)
+  │       │   └── __tests__/
+  │       ├── middleware/              # Hono middleware (error handler, correlation id, ...)
+  │       │   └── __tests__/
+  │       ├── durable_objects/         # Durable Object classes
+  │       │   └── counter.do.ts
+  │       ├── i18n/                    # Backend i18n (i18next + Hono)
+  │       │   ├── config.ts
+  │       │   └── locales/{en,id}.json
+  │       ├── schemas/                 # Backend-specific Zod schemas
+  │       └── types/                   # Backend-specific TypeScript types
+  │
+  ├── shared/                          # Shared code (frontend + backend)
+  │   ├── schemas/                     # Shared Zod schemas with type inference
+  │   ├── types/                       # Shared types & interfaces (DI contracts)
+  │   └── utils/
+  │       └── __tests__/
+  │
+  ├── db/                              # Drizzle schemas + migrations
+  │   ├── d1/                          # D1 (SQLite)
+  │   │   ├── schema/                  # D1 Drizzle schema definitions
+  │   │   └── migrations/              # D1 SQL migrations
+  │   └── hyperdrive/                  # Hyperdrive (PostgreSQL)
+  │       ├── schema/                  # Hyperdrive Drizzle schema definitions
+  │       └── migrations/              # PostgreSQL SQL migrations
+  │
+  ├── e2e/                             # Playwright end-to-end tests
+  │   ├── helpers/
+  │   │   └── test-data.ts             # `from Playwright-E2E` prefix helpers
+  │   └── *.spec.ts                    # E2E test specifications
+  │
+  ├── openspec/                        # OpenSpec specification files
+  │   ├── config.yaml                  # THIS FILE — project context + rules
+  │   ├── specs/                       # Current specifications (what IS built)
+  │   │   └── [capability]/{spec.md,design.md}
+  │   └── changes/                     # Change proposals (what SHOULD change)
+  │       ├── [change-name]/{proposal.md,tasks.md,design.md,specs/}
+  │       └── archive/                 # Completed changes
+  │
+  ├── public/                          # Static assets (favicon, etc.)
+  ├── scripts/
+  │   └── gen-wrangler.js              # Resolves ${...} placeholders → wrangler.json
+  │
+  ├── astro.config.mjs                 # Astro config (CF adapter + mdx + react/vue/solid integrations)
+  ├── biome.json                       # Biome.js configuration (format + lint, per-framework domains)
+  ├── docker-compose.yml               # Local PostgreSQL for Hyperdrive
+  ├── drizzle.config.d1.ts             # Drizzle Kit config (D1)
+  ├── drizzle.config.hyperdrive.ts     # Drizzle Kit config (Hyperdrive)
+  ├── package.json                     # Dependencies and scripts (PNPM)
+  ├── playwright.config.ts             # Playwright E2E configuration
+  ├── tsconfig.json                    # TypeScript config (extends astro/tsconfigs/strict)
+  ├── vitest.config.ts                 # Vitest config (vitest/config, jsdom, React JSX runtime)
+  ├── wrangler.jsonc                   # Cloudflare Workers configuration (source of truth)
+  └── worker-configuration.d.ts        # Auto-generated Cloudflare binding types
+  ```
+
+  > **Note:** `src/app.ts` is the Worker `main`. Durable Objects live under
+  > `src/server/durable_objects/` and MUST be re-exported from `src/app.ts`.
+  > Folders such as `containers/`, `engines/`, `services/`, `i18n/`, `db/`, and
+  > `shared/` are part of the target architecture and are created as features
+  > require them — do not scaffold empty layers ahead of need.
+  >
+  > **Present in the repo today:** `src/app.ts`, `src/pages/`, `src/layouts/`,
+  > `src/components/{react,vue,solid}/`, `src/server/routes/v1/`,
+  > `src/server/durable_objects/`, `src/styles/global.css`, `e2e/`, `public/`,
+  > `scripts/gen-wrangler.js`, `docker-compose.yml`, and the root config files
+  > (`astro.config.mjs`, `biome.json`, `tsconfig.json`, `vitest.config.ts`,
+  > `playwright.config.ts`, `wrangler.jsonc`).
+  >
+  > **Not yet created (add when the feature needs them):** `drizzle.config.d1.ts`,
+  > `drizzle.config.hyperdrive.ts`, `vitest.setup.ts`, `db/`, `shared/`,
+  > `src/i18n/`, `src/server/i18n/`, and the `containers/`/`engines/`/`services/`/
+  > `middleware/` layers.
+
+  ---
+
+  ## Project Conventions
+
+  ### Code Style
+
+  #### TypeScript Standards
+
+  - **Strict mode enabled** — `tsconfig.json` extends `astro/tsconfigs/strict`
+  - **No `any` type** — Use proper types, `unknown`, generics, or type narrowing
+  - **Explicit return types** — All exported functions must have explicit return types
+  - **Interface-first design** — Define interfaces before implementations (DI contracts live in `shared/types/`)
+  - **Proper type organization** — Centralize types in dedicated `types/` directories
+  - **Type-only imports** — Use explicit `import type { ... }` for type-only imports
+  - **Per-framework JSX** — The global JSX runtime is SolidJS (`jsxImportSource: "solid-js"`).
+    React island files MUST opt in with the pragma `/** @jsxImportSource react */`
+    at the top (as in `src/components/react/Counter.tsx`). SolidJS files need no pragma.
+  - **Type checking** — `pnpm typecheck` runs `wrangler types && tsc -b`; use `astro check` for `.astro` files
+
+  ```typescript
+  // ✅ CORRECT: React island opts into the React JSX runtime, types are explicit + interface-based
+  /** @jsxImportSource react */
+  import { useState } from "react";
+  import type { User, CreateUserInput } from "../../types/user.types";
+
+  interface UserService {
+    findById(id: string): Promise<User | null>;
+    create(data: CreateUserInput): Promise<User>;
+  }
+
+  // ❌ WRONG: any type, implicit returns, no type imports
+  function getUser(id: any) {
+    return db.query(id);
+  }
+  ```
+
+  #### Type Organization
+
+  ```
+  src/types/           # Frontend-specific types
+  src/server/types/    # Backend-specific types
+  shared/types/        # Shared types + DI interface contracts (frontend + backend)
+  ```
+
+  - **Interfaces** — For object shapes, service contracts, and DI bindings
+  - **Types** — For unions, intersections, mapped types, and aliases
+  - **Enums** — Prefer `as const` objects or string literal unions over `enum`
+  - **Classes** — Only when behavior encapsulation is needed (e.g., Durable Objects, DI services)
+
+  ```typescript
+  // ✅ PREFERRED: const object over enum (tree-shakeable, no runtime enum overhead)
+  export const UserStatus = {
+    Active: "active",
+    Inactive: "inactive",
+    Suspended: "suspended",
+  } as const;
+  export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
+
+  // ⚠️ ACCEPTABLE: string literal union when only the type is needed
+  export type UserRole = "admin" | "user";
+  ```
+
+  #### Naming Conventions
+
+  | Element              | Convention                   | Example                       |
+  | -------------------- | ---------------------------- | ----------------------------- |
+  | **Framework comps**  | `PascalCase.{tsx,vue}`       | `Counter.tsx`, `Counter.vue`  |
+  | **Astro components** | `PascalCase.astro`           | `Welcome.astro`               |
+  | **Astro pages**      | `kebab-case.astro` (lower)   | `index.astro`, `sign-in.astro`|
+  | **Modules (ts)**     | `kebab-case.ts`              | `user.service.ts`             |
+  | **Functions**        | `camelCase`                  | `getUserById`                 |
+  | **Variables**        | `camelCase`                  | `userName`                    |
+  | **Constants**        | `SCREAMING_SNAKE_CASE`       | `MAX_RETRY_COUNT`             |
+  | **Interfaces**       | `PascalCase` (no `I` prefix) | `UserService`                 |
+  | **Types**            | `PascalCase`                 | `UserRole`                    |
+  | **Enums/Const obj**  | `PascalCase`                 | `UserStatus.Active`           |
+  | **DO Classes**       | `PascalCase`                 | `Counter`                     |
+
+  #### Import Order (organized automatically by Biome.js)
+
+  1. Node.js built-ins (`node:*`)
+  2. External packages (`astro`, `react`, `vue`, `solid-js`, `hono`, `zod`, etc.)
+  3. Astro/Cloudflare virtual modules (`astro:*`, `cloudflare:workers`)
+  4. Relative imports (`./`, `../`)
+  5. Type-only imports (`import type { ... }`)
+
+  > Biome's `assist.actions.source.organizeImports` performs the sorting; do not
+  > hand-maintain import order.
+
+  ### Formatting Rules (Biome.js)
+
+  Configured in `biome.json` (matches the repo):
+
+  - **Indent**: **Tabs** (`formatter.indentStyle: "tab"`)
+  - **Quotes**: Double quotes for strings (`javascript.formatter.quoteStyle: "double"`)
+  - **Import organization**: Automatic via `assist.actions.source.organizeImports: "on"` (assist enabled)
+  - **Linter**: `rules.preset: "recommended"`; framework domains scoped per folder via `overrides`
+  - **CSS**: TailwindCSS directives parsing enabled (`css.parser.tailwindDirectives: true`)
+  - **HTML/Astro**: HTML formatter + full support enabled (`html.formatter.enabled: true`, `html.experimentalFullSupportEnabled: true`)
+  - **Embedded snippets**: `javascript.experimentalEmbeddedSnippetsEnabled: true` (lints code in template strings)
+  - **VCS**: respects `.gitignore` (`vcs.useIgnoreFile: true`, `clientKind: "git"`)
+
+  ```jsonc
+  // biome.json — framework lint domains are enabled per-folder so each island
+  // (react/vue/solid) gets the right rules without cross-contamination.
+  {
+    "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+    "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+    "files": { "ignoreUnknown": false },
+    "html": { "formatter": { "enabled": true }, "experimentalFullSupportEnabled": true },
+    "formatter": { "enabled": true, "indentStyle": "tab" },
+    "linter": {
+      "enabled": true,
+      "domains": { "react": "none", "solid": "none", "vue": "none" },
+      "rules": { "preset": "recommended" }
+    },
+    "javascript": {
+      "experimentalEmbeddedSnippetsEnabled": true,
+      "formatter": { "quoteStyle": "double" }
+    },
+    "assist": { "enabled": true, "actions": { "source": { "organizeImports": "on" } } },
+    "css": { "parser": { "tailwindDirectives": true } },
+    "overrides": [
+      { "includes": ["**/react/**"], "linter": { "domains": { "react": "recommended" } } },
+      { "includes": ["**/solid/**"], "linter": { "domains": { "solid": "recommended" } } },
+      { "includes": ["**/vue/**", "**/*.vue"], "linter": { "domains": { "vue": "recommended" } } }
+    ]
+  }
+  ```
+
+  ---
+
+  ## Architecture Patterns
+
+  ### Clean Architecture Overview
+
+  ```
+  ┌─────────────────────────────────────────────────────────────┐
+  │                    Routes / Controllers                      │
+  │       (Astro pages + island handlers / Hono API routes)      │
+  └──────────────────────────┬──────────────────────────────────┘
+                             │ calls
+  ┌──────────────────────────▼──────────────────────────────────┐
+  │                   Engine / Facade Layer                      │
+  │         (Business logic, orchestrates 2+ services)           │
+  │                                                              │
+  │   • Coordinates multiple services                            │
+  │   • Contains business rules and validation                   │
+  │   • Transaction boundaries                                   │
+  │   • ONLY create when orchestrating 2+ services               │
+  │   • Can be shared between frontend and backend if portable   │
+  └──────────────────────────┬──────────────────────────────────┘
+                             │ delegates
+  ┌──────────────────────────▼──────────────────────────────────┐
+  │                      Service Layer                           │
+  │           (Direct integration with external systems)         │
+  │                                                              │
+  │   Backend: D1Service │ HyperdriveService │ KVService │       │
+  │            R2Service │ DOService │ VectorizeService │         │
+  │            AIService │ LoggerService │ AuthService            │
+  │                                                              │
+  │   Frontend: ApiService │ OAuthService │ PaymentService │     │
+  │             MapService │ SmartContractService                │
+  │                                                              │
+  └─────────────────────────────────────────────────────────────┘
+  ```
+
+  ### Layer Discipline Rules
+
+  **Routes/Controllers:**
+
+  - Astro: `.astro` pages render server-first; interactive islands (React/Vue/Solid)
+    call into frontend engines/services from event handlers — keep islands thin
+  - Hono: API route handlers under `src/server/routes/v1/`
+  - Thin layer — delegates to engines or services, no business logic
+
+  **Engine/Facade Layer:**
+
+  - Contains business logic and orchestration
+  - Coordinates 2+ services with shared business rules
+  - Handles transaction boundaries and cross-cutting concerns
+  - **ONLY create when needed** — do not create unnecessary engine layers
+  - Can be shared between frontend and backend if logic is portable (place portable engines in `shared/`)
+
+  **Service Layer:**
+
+  - Direct integration with external services — no business logic
+  - Pure data access and manipulation
+  - Backend services: D1, Hyperdrive, KV, R2, Durable Objects, Vectorize, Workers AI, Logger
+  - Frontend services: API client (`/api/v1`), OAuth, Payment Gateways, Maps, Smart Contracts, third-party libraries
+
+  **Creation Rules:**
+
+  ```
+  ✅ Create Engine: When orchestrating 2+ services with business logic
+  ✅ Create Service: For each external integration point
+  ❌ Don't Create: Unnecessary abstraction layers
+  ❌ Don't Create: Engine that just proxies a single service
+  ❌ Don't Create: Extra layers beyond engine + service
+  ```
+
+  ### Dependency Injection (Awilix)
+
+  Follow the [official Awilix guide](https://github.com/jeffijoe/awilix/blob/master/README.md) for implementation.
+
+  **Key Principles:**
+
+  - **Interface-based contracts** — All services/engines are registered against interfaces (`shared/types/`), never concrete classes
+  - **`PROXY` injection mode** — Use `InjectionMode.PROXY` so dependencies are resolved by name from a typed `cradle`
+  - **Container registration** — Use `asClass`/`asFunction` with an explicit lifetime (`scoped` for per-request, `singleton` for stateless)
+  - **Scoped containers** — Build a request-scoped container per API request and register the request `Env`/correlation id into it
+  - **Testability** — Swap real bindings for mocks via `container.register(...)` overrides in tests
+  - **Separate containers** — `src/containers/` for frontend, `src/server/containers/` for backend
+
+  ```typescript
+  // shared/types/user.types.ts — interface contract (the DI binding key's type)
+  export interface UserService {
+    findById(id: string): Promise<User | null>;
+  }
+
+  // src/server/services/user.service.ts
+  import type { D1Service } from "../../../shared/types/d1.types";
+  import type { UserService } from "../../../shared/types/user.types";
+
+  export class UserServiceImpl implements UserService {
+    constructor(private readonly deps: { d1Service: D1Service }) {}
+
+    async findById(id: string): Promise<User | null> {
+      return this.deps.d1Service.queryUser(id);
+    }
+  }
+
+  // src/server/containers/index.ts — interface-typed cradle, PROXY mode
+  import { asClass, createContainer, InjectionMode } from "awilix";
+  import type { UserService } from "../../../shared/types/user.types";
+
+  export interface Cradle {
+    userService: UserService;
+  }
+
+  export function createRequestContainer(env: Env) {
+    const container = createContainer<Cradle>({ injectionMode: InjectionMode.PROXY });
+    container.register({
+      userService: asClass(UserServiceImpl).scoped(),
+    });
+    return container;
+  }
+  ```
+
+  ### SOLID Principles Application
+
+  - **S**ingle Responsibility — Each service/engine has one clear purpose
+  - **O**pen/Closed — Extend via interfaces, not modification; new features via new services
+  - **L**iskov Substitution — All implementations are interchangeable via interfaces
+  - **I**nterface Segregation — Small, focused interfaces (not one large interface)
+  - **D**ependency Inversion — Depend on abstractions (interfaces), not concretions (classes)
+
+  ---
+
+  ## Schema Validation (Zod)
+
+  - **Shared schemas** in `shared/schemas/` — used by both frontend and backend
+  - **Frontend-specific schemas** in `src/schemas/` — form validation, UI state
+  - **Backend-specific schemas** in `src/server/schemas/` — API request/response, DB operations
+  - **Type inference** — Always derive TypeScript types from Zod schemas (single source of truth)
+  - **Zod 4 idioms** — Prefer top-level validators (`z.uuid()`, `z.email()`) over the deprecated string-method form
+  - **Validation at boundaries** — Validate at API input (Hono `@hono/zod-validator`) and at form submission (island + server)
+
+  ```typescript
+  // shared/schemas/user.schema.ts
+  import { z } from "zod";
+
+  export const UserSchema = z.object({
+    id: z.uuid(),
+    email: z.email(),
+    name: z.string().min(1).max(100),
+  });
+
+  export type User = z.infer<typeof UserSchema>;
+
+  export const CreateUserSchema = UserSchema.omit({ id: true });
+  export type CreateUserInput = z.infer<typeof CreateUserSchema>;
+  ```
+
+  ```typescript
+  // ✅ Hono route with Zod validation (src/server/routes/v1/users.ts)
+  import { zValidator } from "@hono/zod-validator";
+  import { CreateUserSchema } from "../../../../shared/schemas/user.schema";
+
+  apiV1.post("/users", zValidator("json", CreateUserSchema), async (c) => {
+    const data = c.req.valid("json"); // Fully typed as CreateUserInput
+    // ...
+  });
+  ```
+
+  ---
+
+  ## Database Patterns (Drizzle ORM)
+
+  ### Separate Schemas
+
+  - **D1 (SQLite)**: `db/d1/schema/` — edge-native, low-latency reads (binding `D1`, `drizzle-orm/d1`)
+  - **Hyperdrive (PostgreSQL)**: `db/hyperdrive/schema/` — connection-pooled external DB (binding `HYPERDRIVE`, `postgres` driver)
+
+  Each database has its own Drizzle Kit config (`drizzle.config.d1.ts`, `drizzle.config.hyperdrive.ts`),
+  schema directory, and migration directory. **Never mix D1 and Hyperdrive schemas.**
+
+  ```typescript
+  // D1 — bind the Drizzle client to the request's D1 binding
+  import { drizzle } from "drizzle-orm/d1";
+  import * as schema from "../../db/d1/schema";
+  const d1 = drizzle(env.D1, { schema });
+
+  // Hyperdrive — connect through the pooled connection string
+  import { drizzle } from "drizzle-orm/postgres-js";
+  import postgres from "postgres";
+  import * as schema from "../../db/hyperdrive/schema";
+  const sql = postgres(env.HYPERDRIVE.connectionString, { max: 5, fetch_types: false });
+  const pg = drizzle(sql, { schema });
+  ```
+
+  ### Migration Strategy
+
+  - **D1**: `db/d1/migrations/` — SQLite-compatible SQL
+  - **Hyperdrive**: `db/hyperdrive/migrations/` — PostgreSQL-compatible SQL
+  - **Always generate** before applying — review migration SQL before running
+
+  > **⚠️ Scripts to wire up:** `package.json` currently exposes `dev/build/preview/lint/typecheck/test/test:e2e`.
+  > Add the Drizzle scripts below (each maps to `drizzle-kit ... --config drizzle.config.<db>.ts`,
+  > with D1 migrations applied via `wrangler d1 migrations apply`).
+
+  ```bash
+  # D1 commands (recommended package.json scripts)
+  pnpm d1:generate      # drizzle-kit generate (D1 config) — create migration from schema
+  pnpm d1:migrate       # wrangler d1 migrations apply <db> --local
+  pnpm d1:migrate:prod  # wrangler d1 migrations apply <db> --remote
+  pnpm d1:studio        # drizzle-kit studio (D1 config)
+
+  # Hyperdrive commands (recommended package.json scripts)
+  pnpm db:generate      # drizzle-kit generate (Hyperdrive config)
+  pnpm db:migrate       # drizzle-kit migrate (local Docker PostgreSQL)
+  pnpm db:migrate:prod  # drizzle-kit migrate (production)
+  pnpm db:studio        # drizzle-kit studio (Hyperdrive config)
+  ```
+
+  ### Best Practices
+
+  - **Use indexes** — Define indexes for frequently queried columns
+  - **Avoid N+1** — Use joins or Drizzle's relational query API; batch D1 writes with `db.batch([...])`
+  - **Type-safe queries** — Never use raw SQL strings; use Drizzle's query builder
+  - **Hyperdrive connections** — Create the `postgres()` client per request and let Hyperdrive pool; do not cache clients across requests
+  - **Migration review** — Always review generated SQL before applying
+
+  ### Local Development with Docker
+
+  ```yaml
+  # docker-compose.yml — PostgreSQL for Hyperdrive local development
+  services:
+    postgres:
+      image: postgres:latest
+      container_name: astro-cf-starter-postgres
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: staging_db
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres-data:/var/lib/postgresql
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres -d staging_db"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+      restart: unless-stopped
+
+  volumes:
+    postgres-data:
+      driver: local
+  ```
+
+  **Hyperdrive local connection** (configured in `wrangler.jsonc`, present in the repo):
+
+  ```jsonc
+  "hyperdrive": [{
+    "binding": "HYPERDRIVE",
+    "id": "${HYPERDRIVE_DB_ID}",
+    "localConnectionString": "postgres://postgres:postgres@127.0.0.1:5432/staging_db"
+  }]
+  ```
+
+  ---
+
+  ## Security Patterns
+
+  Middleware lives in `src/app.ts` and runs in order: `logger` → `secureHeaders`
+  → `csrf` → `rateLimiter` → `cors` (`/api/*`) → routes → Astro `handle()`.
+
+  ### CSRF Protection
+
+  - **Required for all mutations**: POST, PUT, PATCH, DELETE
+  - Implemented via Hono's built-in `csrf()` middleware in `src/app.ts`
+  - Origin-based validation — checks request `Origin` against allowed origins
+  - Applied globally before route handlers
+
+  > **⚠️ Repo state:** `src/app.ts` currently calls `csrf()` with defaults (same-origin only).
+  > Configure it with the allowed origins from `wrangler.jsonc` so cross-origin clients
+  > (and integration tests) are validated explicitly.
+
+  ```typescript
+  // src/app.ts — CSRF configured from env origins
+  import { csrf } from "hono/csrf";
+
+  app.use(csrf({
+    origin: (origin, c) => {
+      const allowed = c.env.CORS_ALLOWED_ORIGINS?.split(",") ?? [];
+      return allowed.includes(origin);
+    },
+  }));
+  ```
+
+  **Verification in tests:**
+
+  - Integration tests MUST verify CSRF rejects mutations without a valid `Origin`
+  - Test both allowed and disallowed origins
+
+  ### CORS Protection
+
+  - **Configurable origins** via `CORS_ALLOWED_ORIGINS` in `wrangler.jsonc` `vars`
+  - Applied to `/api/*` routes only (not Astro SSR pages)
+  - Supports a comma-separated origin list for multiple domains
+
+  > **⚠️ Repo state:** in `wrangler.jsonc` the var is present only as a commented wildcard
+  > (`// "CORS_ALLOWED_ORIGINS": "*"`) and `src/app.ts` uses `cors()` with defaults. Uncomment the
+  > var with an **explicit** comma-separated origin list (never `"*"` together with `credentials: true`)
+  > and read it in both `cors()` and `csrf()` — without it `c.env.CORS_ALLOWED_ORIGINS` is `undefined`
+  > and all origin checks fail open/closed unexpectedly.
+
+  ```jsonc
+  // wrangler.jsonc — CORS origins configuration
+  {
+    "vars": {
+      "CORS_ALLOWED_ORIGINS": "http://localhost:4321,https://your-domain.com"
+    }
+  }
+  ```
+
+  ```typescript
+  // src/app.ts — CORS on API routes
+  import { cors } from "hono/cors";
+
+  app.use("/api/*", cors({
+    origin: (origin, c) => {
+      const allowed = c.env.CORS_ALLOWED_ORIGINS?.split(",") ?? [];
+      return allowed.includes(origin) ? origin : "";
+    },
+    credentials: true,
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Correlation-Id"],
+  }));
+  ```
+
+  ### Rate Limiting
+
+  - Configured via Cloudflare `RateLimit` bindings in `wrangler.jsonc` (`ratelimits`)
+  - Two tiers in the repo: `LONG_RATE_LIMITER` (1000 req/60s) and `SHORT_RATE_LIMITER` (20 req/10s)
+  - Applied via `hono-rate-limiter` with a `cf-connecting-ip` key generator (already wired for `LONG_RATE_LIMITER`)
+
+  ### Secure Headers
+
+  - Applied globally via `hono/secure-headers` middleware (already wired in `src/app.ts`)
+  - Includes CSP, X-Frame-Options, X-Content-Type-Options, etc.
+
+  ### Sensitive Data Handling
+
+  - **Never log sensitive data** — Logger service sanitizes automatically
+  - **Environment variables** for secrets — use `.dev.vars` locally, Wrangler secrets in production
+  - **No hardcoded credentials** in codebase (`scripts/gen-wrangler.js` resolves `${...}` placeholders from `.dev.vars`)
+  - **Wrangler types** auto-generated — run `wrangler types` (via `pnpm typecheck`) to update `worker-configuration.d.ts`
+
+  ---
+
+  ## Logging & Error Handling
+
+  ### Logger Service (Core Feature)
+
+  - **Correlation ID** — Assigned per request, propagated through all service calls
+  - **Sensitive data sanitization** — Automatic redaction before logging
+  - **Structured logging** — JSON format for production, readable for development
+  - **Request/Response logging** — All API calls logged with timing and status
+  - **Registered in DI container** — Available to all services and engines
+
+  > **⚠️ Repo state:** `src/app.ts` uses Hono's built-in `logger()` middleware. Replace/augment it
+  > with a `LoggerService` (registered in the Awilix container) that owns the correlation id and
+  > sanitizes payloads — the built-in logger does neither.
+
+  ```typescript
+  // shared/types/logger.types.ts — interface contract (no `I` prefix)
+  export interface LoggerService {
+    info(message: string, meta?: Record<string, unknown>): void;
+    error(message: string, error?: Error, meta?: Record<string, unknown>): void;
+    warn(message: string, meta?: Record<string, unknown>): void;
+    debug(message: string, meta?: Record<string, unknown>): void;
+    setCorrelationId(id: string): void;
+    getCorrelationId(): string;
+  }
+  ```
+
+  **Sensitive Fields (Auto-Sanitized):**
+
+  - `password`, `token`, `secret`, `apiKey`, `authorization`
+  - `creditCard`, `ssn`, `pin`, `cvv`
+  - Any field matching `/password|token|secret|key|auth|credit|ssn|bearer/i`
+  - Applied to both request payloads and response data
+
+  ### Global Error Handling (Core Feature)
+
+  - **Automatic error catching** — Hono `app.onError(...)` catches all unhandled errors
+  - **Error logging** — Errors logged with correlation ID, stack trace, and request context
+  - **Production-safe responses** — Only `correlationId` and a generic message exposed to clients
+  - **Structured error responses** — Consistent JSON error format across all API endpoints
+  - **Easy debugging** — Use correlation ID to trace the full request lifecycle in logs
+
+  ```typescript
+  // src/server/middleware/error-handler.ts
+  import type { Context } from "hono";
+  import type { LoggerService } from "../../../shared/types/logger.types";
+
+  export function handleError(err: Error, c: Context, logger: LoggerService): Response {
+    const correlationId = logger.getCorrelationId();
+
+    logger.error("Unhandled error", err, {
+      correlationId,
+      path: c.req.path,
+      method: c.req.method,
+    });
+
+    return c.json({ error: "Internal Server Error", correlationId }, 500);
+  }
+
+  // src/app.ts — wire the handler (resolve logger from the request-scoped container)
+  app.onError((err, c) => handleError(err, c, c.get("logger")));
+  ```
+
+  ---
+
+  ## Internationalization (i18n)
+
+  ### Centralized References
+
+  - **Frontend routing**: Astro's built-in i18n (`i18n` config in `astro.config.mjs`) drives locale-aware URLs and the `astro:i18n` helpers (`getRelativeLocaleUrl`, `getLocaleByPath`)
+  - **Frontend messages**: a shared `i18next` instance in `src/i18n/config.ts` provides translation catalogs to `.astro` pages and to React/Vue/Solid islands
+  - **Backend**: `i18next` with Hono in `src/server/i18n/` — detects locale from `Accept-Language`/query and translates API messages
+  - **Shared keys** — keep translation keys consistent across frontend and backend (mirror `common`/`errors`/`validation` namespaces)
+
+  ```javascript
+  // astro.config.mjs — Astro built-in i18n routing (requires output: "server")
+  export default defineConfig({
+    i18n: {
+      locales: ["en", "id"],
+      defaultLocale: "en",
+      routing: { prefixDefaultLocale: false },
+    },
+  });
+  ```
+
+  ### Translation Structure
+
+  ```
+  src/i18n/
+  ├── config.ts           # i18next instance (namespaces, fallbackLng) + Astro locale helpers
+  └── locales/
+      ├── en/
+      │   ├── common.json      # Shared UI labels, buttons, navigation
+      │   ├── errors.json      # Error messages
+      │   └── validation.json  # Form validation messages
+      └── id/
+          ├── common.json
+          ├── errors.json
+          └── validation.json
+
+  src/server/i18n/
+  ├── config.ts           # Backend i18next instance (server namespaces)
+  └── locales/
+      ├── en.json          # API error messages, notifications
+      └── id.json
+  ```
+
+  ### Theme & Language Selector
+
+  - Built into the **main layout** (`src/layouts/Layout.astro`), visible on all pages
+  - Implemented as a single interactive **island** (any framework) — keep it framework-consistent
+  - **Theme selector**: DaisyUI theme switch via the `data-theme` attribute on `<html>`
+  - **Language selector**: switches locale; use `getRelativeLocaleUrl()` for SSR-correct links and `i18next.changeLanguage()` for client islands
+  - **Icons**: Lucide per framework (`lucide-react`, `@lucide/vue`, `lucide-solid`)
+  - **Persistence**: `localStorage` for theme; `localStorage` + cookie for language (so SSR can read it)
+  - **Accessible**: keyboard-navigable dropdowns with ARIA attributes
+  - **Default theme**: `light` (DaisyUI `--default` flag — see UI/UX § DaisyUI Theming)
+
+  > **⚠️ Repo state:** `src/layouts/Layout.astro` is currently a minimal shell (`<html lang="en">`,
+  > a `<slot />`, no landmarks, title "Astro Basics") and imports only `global.css`. Build it out
+  > with semantic landmarks (`<header>`/`<main>`/`<footer>`), a skip link, SEO `<head>` tags
+  > (title/description/canonical/OpenGraph + `hreflang` per locale), and mount the theme + language
+  > selector islands as described above.
+
+  ```astro
+  ---
+  // src/layouts/Layout.astro — selectors hydrated as islands in the layout
+  import ThemeSelector from "../components/react/ThemeSelector";
+  import LanguageSelector from "../components/react/LanguageSelector";
+  ---
+  <header role="banner">
+    <nav aria-label="Primary navigation">
+      <LanguageSelector client:idle />
+      <ThemeSelector client:idle />
+    </nav>
+  </header>
+  ```
+
+  ```tsx
+  /** @jsxImportSource react */
+  // src/components/react/ThemeSelector.tsx
+  // - Reads/writes data-theme on <html>, persists to localStorage
+  // - Renders an accessible DaisyUI dropdown of available themes
+  export default function ThemeSelector(): React.ReactElement { /* ... */ }
+
+  // src/components/react/LanguageSelector.tsx
+  // - Links via getRelativeLocaleUrl() (SSR) + i18next.changeLanguage() (client)
+  // - Persists selection in localStorage + cookie; shows flag/Lucide icons
+  export default function LanguageSelector(): React.ReactElement { /* ... */ }
+  ```
+
+  ---
+
+  ## UI/UX Patterns
+
+  ### Semantic HTML, Accessibility & SEO
+
+  - **Semantic elements**: `<main>`, `<nav>`, `<article>`, `<section>`, `<header>`, `<footer>`, `<aside>`
+  - **ARIA roles**: Proper roles for interactive elements, live regions for dynamic content
+  - **Keyboard navigation**: All interactions keyboard-accessible (Tab, Enter, Escape, Arrow keys)
+  - **Focus management**: Visible focus indicators, focus trapping in modals
+  - **Screen reader support**: Descriptive labels, `aria-label`, `aria-describedby`, `aria-live`
+  - **Skip links**: "Skip to main content" link as first focusable element
+  - **Color contrast**: Minimum WCAG 2.1 AA contrast ratios via DaisyUI theme tokens
+  - **Landmark regions**: Proper landmark structure for assistive technology
+  - **SEO**: Astro renders semantic HTML server-first (great for crawlers). Set `<title>`,
+    `<meta name="description">`, canonical/OpenGraph tags, `lang` attribute, and `hreflang`
+    links per locale in the layout `<head>`; use a single `<h1>` per page with logical heading order
+
+  ```tsx
+  // ✅ CORRECT: Semantic HTML with ARIA
+  <a href="#main-content" className="sr-only focus:not-sr-only">
+    Skip to main content
+  </a>
+  <header role="banner">
+    <nav aria-label="Primary navigation">
+      {/* Navigation items */}
+    </nav>
+  </header>
+  <main id="main-content" role="main" aria-label="Main content">
+    <section aria-labelledby="section-heading">
+      <h2 id="section-heading">Section Title</h2>
+      {/* Content */}
+    </section>
+  </main>
+  <footer role="contentinfo">
+    {/* Footer content */}
+  </footer>
+  ```
+
+  ### Form Layouts
+
+  - Follow [TailwindCSS Form Layouts](https://tailwindcss.com/plus/ui-blocks/application-ui/forms/form-layouts)
+  - **Mobile-first responsive**: Stack on mobile, grid on desktop
+  - **Proper label associations**: `<label htmlFor="...">` on every input
+  - **Error state handling**: Clear inline error messages with `aria-invalid` and `aria-describedby`
+  - **Loading states**: Visual feedback with disabled state and spinner
+  - **Validation**: Client-side Zod validation in islands + server-side Zod validation in the Hono route
+  - **CSRF token**: send the `Origin` header (validated by `csrf()`); for native `.astro` POST forms include a hidden token field if needed
+  - **Native vs island forms**: simple `.astro` `<form method="post">` posts to a Hono route; interactive forms are framework islands that `fetch("/api/v1/...")`
+
+  ```tsx
+  // Responsive form layout with TailwindCSS + DaisyUI (React island shown; same classes in Vue/Solid)
+  <form className="space-y-8 divide-y divide-base-300" method="post">
+    <div className="md:grid md:grid-cols-3 md:gap-6">
+      <div className="md:col-span-1">
+        <h3 className="text-lg font-medium text-base-content">Profile</h3>
+        <p className="mt-1 text-sm text-base-content/60">
+          This information will be displayed publicly.
+        </p>
+      </div>
+      <div className="mt-5 md:col-span-2 md:mt-0 space-y-4">
+        <div className="form-control w-full">
+          <label className="label" htmlFor="name">
+            <span className="label-text">Full Name</span>
+          </label>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            className="input input-bordered w-full"
+            aria-invalid={!!errors?.name}
+            aria-describedby={errors?.name ? "name-error" : undefined}
+          />
+          {errors?.name && (
+            <p id="name-error" className="text-error text-sm mt-1" role="alert">
+              {errors.name}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  </form>
+  ```
+
+  ### Custom Components (DaisyUI-based)
+
+  Define custom components based on requirements and use cases:
+
+  | Component       | Base            | Features                                             |
+  | --------------- | --------------- | ---------------------------------------------------- |
+  | **Toast**       | DaisyUI toast   | Auto-dismiss, stacking, severity levels, accessible  |
+  | **Modal**       | DaisyUI modal   | Focus trap, Escape to close, ARIA dialog role        |
+  | **Carousel**    | DaisyUI carousel| Keyboard nav, swipe, auto-play with pause            |
+  | **Dropdown**    | DaisyUI dropdown| Keyboard nav, ARIA listbox/menu, click outside close |
+  | **DataTable**   | Custom          | Sortable, filterable, paginated, responsive          |
+  | **ConfirmDialog** | DaisyUI modal | Confirm/cancel actions with focus management         |
+
+  Custom components may be authored in any island framework (React/Vue/Solid) based on the use case.
+  All custom components must:
+  - Have unit tests (Testing Library for the chosen framework)
+  - Support keyboard navigation
+  - Include proper ARIA attributes
+  - Be responsive (mobile-first TailwindCSS)
+
+  ### DaisyUI Theming
+
+  - **Default theme**: `light` (via `--default` flag)
+  - **Dark mode**: `dark` (via `--prefersdark` for OS preference)
+  - **Theme switching**: `data-theme` attribute on `<html>` element
+  - **Persistence**: localStorage for user preference
+  - **Configuration** in `src/styles/global.css`:
+
+  > **⚠️ Repo state:** `src/styles/global.css` currently declares `@plugin "daisyui";` with no theme
+  > list (DaisyUI's built-in default). Set `light --default` explicitly and enable the themes
+  > exposed by the theme selector.
+
+  ```css
+  /* src/styles/global.css — TailwindCSS 4 + DaisyUI */
+  @import "tailwindcss";
+  @plugin "daisyui" {
+    themes: light --default, dark --prefersdark, cupcake, corporate, dracula;
+  }
+  ```
+
+  **Theme Flags:**
+
+  - `--default` — Sets the default theme on first visit
+  - `--prefersdark` — Auto-applies when `prefers-color-scheme: dark` is set
+
+  **Apply theme:**
+
+  ```html
+  <html data-theme="light">
+    <!-- Full page uses light theme -->
+    <div data-theme="dark">
+      <!-- Nested section uses dark theme -->
+    </div>
+  </html>
+  ```
+
+  ---
+
+  ## Realtime Features
+
+  ### WebSocket / SSE Selection Guide
+
+  - Use **Durable Objects** for all stateful realtime connections and queues
+  - Use **KV** for communication between Durable Object instances (queue coordination across DOs)
+  - The repo ships an example `Counter` DO (`src/server/durable_objects/counter.do.ts`) backed by
+    DO SQLite storage, registered via `new_sqlite_classes` in `wrangler.jsonc` and re-exported from `src/app.ts`
+  - Choose protocol based on requirements:
+
+  | Feature             | WebSocket                        | SSE                              |
+  | ------------------- | -------------------------------- | -------------------------------- |
+  | **Direction**       | Bidirectional                    | Server → Client only             |
+  | **Complexity**      | Higher (DO + WebSocketPair)      | Lower (ReadableStream)           |
+  | **Use Cases**       | Chat, live collaboration, gaming | Notifications, feed updates      |
+  | **Reconnection**    | Manual                           | Automatic (EventSource API)      |
+  | **Binary Data**     | Supported                        | Text only (JSON)                 |
+  | **Browser Support** | Excellent                        | Excellent                        |
+
+  **Decision Rule:** Use SSE unless the client needs to send messages to the server. Use WebSocket for bidirectional communication.
+
+  ### WebSocket Implementation (Durable Objects)
+
+  ```typescript
+  // src/server/durable_objects/websocket.do.ts
+  // Register in wrangler.jsonc `migrations` (new_sqlite_classes) + re-export from src/app.ts
+  export class WebSocketDO extends DurableObject {
+    private sessions: Map<string, WebSocket> = new Map();
+
+    async fetch(request: Request): Promise<Response> {
+      if (request.headers.get("Upgrade") === "websocket") {
+        const { 0: client, 1: server } = new WebSocketPair();
+        const sessionId = crypto.randomUUID();
+        this.ctx.acceptWebSocket(server);
+        this.sessions.set(sessionId, server);
+        return new Response(null, { status: 101, webSocket: client });
+      }
+      return new Response("Expected WebSocket", { status: 400 });
+    }
+
+    async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {
+      // Handle incoming messages, broadcast to other sessions
+    }
+
+    async webSocketClose(ws: WebSocket, code: number, reason: string): Promise<void> {
+      // Clean up session
+    }
+  }
+  ```
+
+  ### Inter-DO Communication via KV
+
+  - Durable Objects use KV to coordinate between instances (the required cross-DO queue channel)
+  - KV stores queue state, message routing, and session metadata
+  - Pattern: DO writes to KV → other DOs poll or are notified
+  - Prefer SSE for one-way fan-out and WebSocket for bidirectional/queue-worker DOs
+
+  ---
+
+  ## Testing Strategy
+
+  ### Coverage Requirements
+
+  - **Minimum coverage: 90%** for all metrics (statements, branches, functions, lines)
+  - **All tests must pass** before merging to `main` or `dev`
+  - **No skipped tests** in production branches
+  - **Coverage enforced** via the Vitest v8 coverage provider with a `thresholds` block
+
+  > **⚠️ Repo state:** `vitest.config.ts` uses `defineConfig` from `vitest/config` (jsdom env,
+  > `esbuild.jsxImportSource: "react"`, `include: ["src/**/*.test.ts(x)"]`). It has **no** `coverage`
+  > block or `setupFiles`, and `@vitest/coverage-v8` is **not** yet a devDependency. The `test`
+  > script is `vitest` (watch mode) — CI should call `vitest run --coverage`. Add the provider, a
+  > `vitest.setup.ts` (registers `@testing-library/jest-dom`), and the `thresholds` below — without
+  > them Vitest will not fail the build when coverage drops below 90%. Components in non-React
+  > frameworks (Vue/Solid) compile through their own test transforms; if you need to render `.astro`
+  > files or Astro path aliases inside tests, migrate to Astro's `getViteConfig` wrapper.
+
+  ```typescript
+  /// <reference types="vitest/config" />
+  // vitest.config.ts — current base + recommended 90% coverage additions
+  import { defineConfig } from "vitest/config";
+
+  export default defineConfig({
+    // Global JSX runtime for tests is React; Solid/Vue islands use their own transforms.
+    esbuild: { jsx: "automatic", jsxImportSource: "react" },
+    test: {
+      globals: true,
+      environment: "jsdom",
+      include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+      setupFiles: ["./vitest.setup.ts"], // ← add: registers jest-dom matchers
+      coverage: { // ← add: enforce the 90% gate
+        provider: "v8",
+        reporter: ["text", "json", "html"],
+        thresholds: { statements: 90, branches: 90, functions: 90, lines: 90 },
+        exclude: ["node_modules/", "coverage/", "dist/", ".astro/", "e2e/", "**/*.config.*", "vitest.setup.ts"],
+      },
+    },
+  });
+  ```
+
+  ### Test Types and Tools
+
+  | Type            | Tool                          | File Pattern                  | Scope                           |
+  | --------------- | ----------------------------- | ----------------------------- | ------------------------------- |
+  | **Unit**        | Vitest + Testing Library      | `*.test.ts`, `*.test.tsx`     | Islands, services, utils        |
+  | **Integration** | Vitest + Hono `app.request()` | `*.integration.test.ts`       | API endpoints, feature flows    |
+  | **End-to-End**  | Playwright                    | `e2e/*.spec.ts`               | Full user flows across browsers |
+
+  ### Unit Testing (Vitest)
+
+  - **Environment**: jsdom (via `vitest.config.ts`)
+  - **Setup**: `vitest.setup.ts` registers `@testing-library/jest-dom` matchers
+  - **Component testing (per framework)**:
+    - React islands → `@testing-library/react` (`render`, `screen`)
+    - Vue islands → `@testing-library/vue` / `@vue/test-utils`
+    - Solid islands → `@solidjs/testing-library`
+    - Shared interactions via `@testing-library/user-event`
+  - **Service testing**: Mock dependencies via their DI interfaces
+  - **Schema testing**: Validate Zod schemas with valid and invalid inputs
+
+  ### Integration Testing (Vitest + Hono)
+
+  - **API testing**: Use Hono's `app.request()` test helper
+  - **Database mocking**: Mock Drizzle ORM queries at the service interface level
+  - **External service mocking**: Mock Cloudflare bindings (D1, KV, R2, etc.) via typed interfaces
+  - **CSRF verification**: Test that mutations are rejected without valid origin
+  - **CORS verification**: Test that cross-origin requests are handled correctly
+  - **Error handling**: Test that server errors return proper correlation IDs
+
+  ### End-to-End Testing (Playwright)
+
+  - **Configuration**: `playwright.config.ts` with multi-browser support
+  - **Test directory**: `e2e/`
+  - **Browsers**: Chromium, Firefox, WebKit (configured per CI/local)
+  - **Parallel execution**: Enabled locally, sequential on CI
+  - **CI retries**: 2 retries on CI, 0 locally
+  - **Reporter**: HTML report for visual debugging
+
+  > **⚠️ Repo state:** in `playwright.config.ts` both `use.baseURL` and the `webServer` block are
+  > commented out (and the commented `webServer.url` says `4231`). Uncomment them and use the Astro
+  > dev port **4321** so Playwright starts the dev server and resolves relative URLs.
+
+  ```typescript
+  // playwright.config.ts — Astro dev server on port 4321
+  export default defineConfig({
+    testDir: "./e2e",
+    fullyParallel: true,
+    forbidOnly: !!process.env.CI,
+    retries: process.env.CI ? 2 : 0,
+    workers: process.env.CI ? 1 : undefined,
+    reporter: "html",
+    use: {
+      baseURL: "http://localhost:4321",
+      trace: "on-first-retry",
+    },
+    projects: [
+      { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+      { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+      { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    ],
+    webServer: {
+      command: "pnpm dev",
+      url: "http://localhost:4321",
+      reuseExistingServer: !process.env.CI,
+    },
+  });
+  ```
+
+  ### Playwright E2E Data Prefix Convention
+
+  **All data input in Playwright E2E tests MUST use the prefix `from Playwright-E2E`.**
+
+  This convention ensures that developers can easily distinguish between data created by
+  automated E2E tests and data created manually during development. This prevents false
+  confidence from manually seeded data being confused with Playwright-generated data.
+
+  **Rules:**
+
+  - Every text input, form field, and data creation action MUST prefix values with `from Playwright-E2E`
+  - This applies to: names, titles, descriptions, emails, and any user-generated content
+  - Use a helper function to standardize the prefix across all E2E tests
+  - During manual testing, developers can filter/identify E2E-created data by searching for this prefix
+
+  ```typescript
+  // e2e/helpers/test-data.ts — centralized E2E data prefix helper
+  const E2E_PREFIX = "from Playwright-E2E";
+
+  export function e2eData(value: string): string {
+    return `${E2E_PREFIX} ${value}`;
+  }
+
+  export function e2eEmail(name: string): string {
+    return `playwright-e2e-${name}@test.local`;
+  }
+
+  // ✅ CORRECT: Using e2eData helper in tests
+  // e2e/users.spec.ts
+  import { e2eData, e2eEmail } from "./helpers/test-data";
+
+  test("create a new user", async ({ page }) => {
+    await page.getByLabel("Name").fill(e2eData("John Doe"));
+    await page.getByLabel("Email").fill(e2eEmail("john-doe"));
+    await page.getByLabel("Bio").fill(e2eData("Software engineer"));
+    await page.getByRole("button", { name: "Submit" }).click();
+    // Asserts
+    await expect(page.getByText(e2eData("John Doe"))).toBeVisible();
+  });
+
+  // ❌ WRONG: Hardcoded data without prefix
+  test("create a new user", async ({ page }) => {
+    await page.getByLabel("Name").fill("John Doe"); // Missing prefix!
+  });
+  ```
+
+  ### Test Organization
+
+  ```
+  src/components/
+  ├── react/
+  │   ├── Counter.tsx
+  │   └── __tests__/Counter.test.tsx           # @testing-library/react
+  ├── vue/
+  │   ├── Counter.vue
+  │   └── __tests__/Counter.test.ts            # @testing-library/vue
+  └── solid/
+      ├── Counter.tsx
+      └── __tests__/Counter.test.tsx           # @solidjs/testing-library
+
+  src/server/
+  ├── routes/v1/
+  │   ├── users.ts
+  │   └── __tests__/
+  │       ├── users.test.ts                    # Unit test
+  │       └── users.integration.test.ts        # Integration test (Hono app.request)
+  ├── services/
+  │   ├── user.service.ts
+  │   └── __tests__/user.service.test.ts       # Unit test
+  └── middleware/
+      └── __tests__/error-handler.test.ts      # Unit test
+
+  e2e/
+  ├── index.spec.ts                            # E2E smoke test (ships in repo)
+  ├── auth.spec.ts                             # E2E auth flow
+  └── helpers/test-data.ts                     # `from Playwright-E2E` prefix helpers
+  ```
+
+  ### Mocking Strategy
+
+  - **Database mocking** — Mock Drizzle ORM at the service interface level, not at the DB driver
+  - **Cloudflare bindings** — Create typed mocks for D1, KV, R2, Hyperdrive, AI, Vectorize
+  - **HTTP requests** — Use Vitest mocks (`vi.fn()`) for fetch-based services
+  - **DI container** — Swap real services with mocks via Awilix container override
+  - **No `any` type in mocks** — All mocks must satisfy their interface types
+
+  ```typescript
+  // ✅ CORRECT: Properly typed mock matching the interface contract
+  const mockUserService: UserService = {
+    findById: vi.fn<(id: string) => Promise<User | null>>().mockResolvedValue(mockUser),
+    create: vi.fn<(data: CreateUserInput) => Promise<User>>().mockResolvedValue(mockUser),
+  };
+
+  // ✅ CORRECT: Cloudflare binding mock
+  const mockKV: KVNamespace = {
+    get: vi.fn().mockResolvedValue(null),
+    put: vi.fn().mockResolvedValue(undefined),
+    delete: vi.fn().mockResolvedValue(undefined),
+    list: vi.fn().mockResolvedValue({ keys: [], list_complete: true, cacheStatus: null }),
+    getWithMetadata: vi.fn().mockResolvedValue({ value: null, metadata: null, cacheStatus: null }),
+  } as unknown as KVNamespace;
+
+  // ❌ WRONG: any type in mock
+  const mockService = {} as any;
+  ```
+
+  ### Testing Commands
+
+  ```bash
+  # Present in the repo's package.json:
+  pnpm test              # "vitest" — runs Vitest in WATCH mode (unit + integration)
+  pnpm test:e2e          # Run Playwright E2E tests (data prefixed `from Playwright-E2E`)
+
+  # Recommended scripts to add:
+  pnpm test:run          # CI run, no watch ("vitest run")
+  pnpm test:ui           # Vitest UI in browser ("vitest --ui")
+  pnpm test:cov          # Coverage report + 90% threshold check ("vitest run --coverage")
+  ```
+
+  ---
+
+  ## Git Workflow
+
+  ### Branch Strategy
+
+  - `main` — Production-ready code
+  - `dev` — Integration branch
+  - `feat/*` — Feature development
+  - `fix/*` — Bug fixes
+  - `chore/*` — Maintenance tasks
+
+  ### Commit Conventions
+
+  Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+  ```
+  <type>(<scope>): <description>
+
+  [optional body]
+
+  [optional footer(s)]
+  ```
+
+  **Types:**
+
+  - `feat` — New feature
+  - `fix` — Bug fix
+  - `docs` — Documentation only changes
+  - `style` — Formatting, no code change
+  - `refactor` — Code restructuring, no behavior change
+  - `test` — Adding or updating tests
+  - `chore` — Maintenance, CI, dependencies
+
+  ---
+
+  ## Domain Context
+
+  ### Application Domains
+
+  This starter template is designed to support various application types:
+
+  - **SaaS applications** — Multi-tenant with user management
+  - **E-commerce** — Product catalogs, carts, checkout
+  - **Content platforms** — CMS, blogs, documentation
+  - **Real-time applications** — Chat, notifications, live updates
+  - **AI-powered applications** — ML inference, embeddings, automation
+
+  ### Cloudflare Edge Computing
+
+  All services are configured in `wrangler.jsonc` and can be tested locally via Wrangler's local mode.
+
+  **Key Concepts:**
+
+  - **Workers** — Serverless functions at the edge (Hono API + Astro SSR via `@astrojs/cloudflare`)
+  - **D1** — SQLite at the edge, low-latency reads, Drizzle ORM managed
+  - **Hyperdrive** — Connection pooling for external PostgreSQL, Docker for local dev
+  - **Durable Objects** — Stateful edge computing for WebSocket, SSE, queues
+  - **KV** — Global key-value storage for caching, sessions, inter-DO communication
+  - **R2** — S3-compatible object storage, no egress fees
+  - **Vectorize** — Vector database for ML embeddings, similarity search
+  - **Workers AI** — ML inference at the edge for backend automation
+  - **Browser Rendering** — Server-side browser automation for screenshots, PDFs
+  - **Rate Limiter** — Edge-native request rate limiting via RateLimit bindings
+
+  ### Cloudflare Service Selection Guide
+
+  | Requirement                     | Service              | Why                                       |
+  | ------------------------------- | -------------------- | ----------------------------------------- |
+  | Primary edge data storage       | D1                   | Low-latency SQLite at edge                |
+  | External PostgreSQL             | Hyperdrive           | Connection pooling, reduced latency       |
+  | Caching, sessions               | KV                   | Global, fast key-value                    |
+  | File/object storage             | R2                   | S3-compatible, no egress fees             |
+  | Real-time bidirectional         | Durable Objects + WS | Stateful WebSocket connections            |
+  | Real-time server push           | Durable Objects + SSE| One-way server-to-client updates          |
+  | ML embeddings/similarity search | Vectorize            | Vector similarity search                  |
+  | AI inference/automation         | Workers AI           | Edge ML models                            |
+  | Inter-DO queue coordination     | KV + DO              | KV as message broker between DOs          |
+  | Browser automation              | Browser Rendering    | Screenshots, PDF generation               |
+  | API rate limiting               | RateLimit            | Edge-native, configurable per binding     |
+
+  ---
+
+  ## Important Constraints
+
+  ### Technical Constraints
+
+  1. **TypeScript Strictness**
+    - No `any` type usage — enforced by Biome and `astro/tsconfigs/strict`
+    - Strict null checks enabled
+    - Explicit return types on all exported functions
+    - Explicit `import type` for type-only imports
+    - React islands declare `/** @jsxImportSource react */` (the global JSX runtime is SolidJS)
+
+  2. **Test Coverage**
+    - Minimum 90% coverage enforced (statements, branches, functions, lines)
+    - All unit and integration tests must pass before merge
+    - E2E tests must pass on CI before production deploy
+    - No skipped tests in production branches
+    - **Playwright E2E data prefix**: All E2E test data inputs MUST use `from Playwright-E2E` prefix
+
+  3. **Architecture Compliance**
+    - Follow clean architecture layers (Routes → Engine → Service)
+    - No unnecessary abstraction layers — only Engine and Service
+    - Interface-based dependency injection via Awilix (`InjectionMode.PROXY`)
+    - DI container per context (frontend + backend)
+    - Islands scoped by folder: React `**/react/*`, Vue `**/vue/*`, Solid `**/solid/*`; hydrate via `client:*`
+
+  4. **Security Requirements**
+    - CSRF protection on all mutation endpoints (Hono `csrf()` middleware)
+    - CORS with configurable origins from `wrangler.jsonc` vars
+    - Rate limiting via Cloudflare RateLimit bindings
+    - Secure headers via `hono/secure-headers`
+    - Sensitive data sanitization in all log output
+    - No hardcoded credentials — use `.dev.vars` and Wrangler secrets
+
+  5. **Cloudflare Compatibility**
+    - All code must run on the Workers runtime
+    - No Node.js-specific APIs unless polyfilled via `nodejs_compat` flag
+    - Edge-compatible dependencies only
+    - Wrangler types auto-generated via `wrangler types` command
+    - All bindings typed in `worker-configuration.d.ts`
+
+  6. **Accessibility Requirements**
+    - Semantic HTML structure on all pages
+    - ARIA roles and attributes on all interactive elements
+    - Keyboard navigation support (Tab, Enter, Escape, arrows)
+    - Skip links on all pages
+    - Focus management in modals and dynamic content
+    - WCAG 2.1 AA color contrast compliance
+
+  7. **Internationalization Requirements**
+    - All user-facing strings must use i18n keys (no hardcoded text)
+    - Frontend: Astro built-in i18n routing + a shared `i18next` instance with JSON catalogs per namespace
+    - Backend: `i18next` with Hono for API error messages and notifications
+    - Language persisted in localStorage + cookie (for SSR detection)
+    - Minimum languages: English (`en`), Indonesian (`id`)
+
+  ### Performance Constraints
+
+  1. **Bundle Size** — Monitor and optimize frontend bundle via Vite build analysis
+  2. **Cold Start** — Optimize Worker initialization (lazy imports, minimal top-level code)
+  3. **Database Queries** — Use indexes, avoid N+1 queries, leverage Drizzle query builder
+  4. **Edge Caching** — Use KV for frequently accessed data, R2 for static assets
+
+  ---
+
+  ## External Dependencies
+
+  ### Required External Services
+
+  | Service                | Purpose                        | Configuration                      |
+  | ---------------------- | ------------------------------ | ---------------------------------- |
+  | **Cloudflare Account** | Workers, D1, KV, R2, etc.      | Wrangler CLI + `wrangler.jsonc`    |
+  | **PostgreSQL**         | Hyperdrive backend (optional)  | Docker Compose for local dev       |
+
+  ### Key NPM Packages (Production)
+
+  | Package                 | Version | Purpose                            |
+  | ----------------------- | ------- | ---------------------------------- |
+  | `astro`                 | 6.4.6   | Server-first framework + islands   |
+  | `@astrojs/cloudflare`   | 13.7.0  | Cloudflare Workers adapter         |
+  | `@astrojs/mdx`          | 6.0.3   | MDX content pages/components       |
+  | `@astrojs/react`        | 5.0.7   | React islands integration          |
+  | `@astrojs/vue`          | 6.0.1   | Vue islands integration            |
+  | `@astrojs/solid-js`     | 6.0.1   | SolidJS islands integration        |
+  | `react` / `react-dom`   | 19.2.7  | React UI framework + DOM renderer  |
+  | `vue`                   | 3.5.38  | Vue UI framework                   |
+  | `solid-js`              | 1.9.13  | SolidJS UI framework               |
+  | `hono`                  | 4.12.25 | Backend API framework              |
+  | `@hono/zod-validator`   | 0.8.0   | Zod validation middleware          |
+  | `hono-rate-limiter`     | 0.5.3   | Rate limiting middleware           |
+  | `drizzle-orm`           | 0.45.2  | Type-safe ORM                      |
+  | `zod`                   | 4.4.3   | Schema validation                  |
+  | `awilix`                | 13.0.4  | Dependency injection (v13 API)     |
+  | `lucide-react`          | 1.18.0  | Icons (React)                      |
+  | `@lucide/vue`           | 1.18.0  | Icons (Vue)                        |
+  | `lucide-solid`          | 1.18.0  | Icons (SolidJS)                    |
+  | `postgres`              | 3.4.9   | PostgreSQL driver (Hyperdrive)     |
+  | `bcryptjs`              | 3.0.3   | Password hashing                   |
+
+  > **⚠️ Not yet installed:** i18n (`i18next` + an Astro i18next integration) and the Vitest
+  > coverage provider (`@vitest/coverage-v8`) are required by this spec but are not yet in
+  > `package.json`. Add them when implementing i18n and coverage enforcement.
+
+  ### Key NPM Packages (Development)
+
+  | Package                             | Version | Purpose                        |
+  | ----------------------------------- | ------- | ------------------------------ |
+  | `typescript`                        | 6.0.3   | Type checking                  |
+  | `@biomejs/biome`                    | 2.5.0   | Formatting + linting           |
+  | `tailwindcss`                       | 4.3.1   | Utility CSS                    |
+  | `@tailwindcss/vite`                 | 4.3.1   | TailwindCSS Vite plugin        |
+  | `daisyui`                           | 5.5.23  | UI components                  |
+  | `vitest`                            | 4.1.8   | Testing framework              |
+  | `@testing-library/react`            | 16.3.2  | React component testing        |
+  | `@testing-library/vue`              | 8.1.0   | Vue component testing          |
+  | `@solidjs/testing-library`          | 0.8.10  | Solid component testing        |
+  | `@vue/test-utils`                   | 2.4.11  | Vue test utilities             |
+  | `@testing-library/dom`              | 10.4.1  | Shared DOM queries             |
+  | `@testing-library/user-event`       | 14.6.1  | User interaction simulation    |
+  | `@testing-library/jest-dom`         | 6.9.1   | DOM matchers                   |
+  | `jsdom`                             | 29.1.1  | DOM environment for tests      |
+  | `@playwright/test`                  | 1.60.0  | E2E testing                    |
+  | `drizzle-kit`                       | 0.31.10 | Migration generation           |
+  | `wrangler`                          | 4.100.0 | Cloudflare Workers CLI         |
+  | `@types/node`                       | 25.9.3  | Node type definitions          |
+  | `@types/pg`                         | 8.20.0  | PostgreSQL type definitions    |
+  | `@types/react` / `@types/react-dom` | 19.2.x  | React type definitions         |
+
+  > **Note:** `vite` is pinned to `^7` via `package.json` `overrides`; Node is pinned to
+  > `24.16.0` via `engines`. `postinstall` runs `pnpm typecheck`.
+
+  ### External Documentation
+
+  - [Astro Docs](https://docs.astro.build)
+  - [Astro Islands](https://docs.astro.build/en/concepts/islands/)
+  - [Astro i18n Routing](https://docs.astro.build/en/guides/internationalization/)
+  - [React 19 Docs](https://react.dev)
+  - [Vue 3 Docs](https://vuejs.org)
+  - [SolidJS Docs](https://www.solidjs.com/docs)
+  - [Hono Documentation](https://hono.dev)
+  - [Cloudflare Workers Docs](https://developers.cloudflare.com/workers)
+  - [Cloudflare D1 Docs](https://developers.cloudflare.com/d1)
+  - [Cloudflare Hyperdrive Docs](https://developers.cloudflare.com/hyperdrive)
+  - [Cloudflare Durable Objects Docs](https://developers.cloudflare.com/durable-objects)
+  - [Cloudflare KV Docs](https://developers.cloudflare.com/kv)
+  - [Cloudflare R2 Docs](https://developers.cloudflare.com/r2)
+  - [Cloudflare Vectorize Docs](https://developers.cloudflare.com/vectorize)
+  - [Cloudflare Workers AI Docs](https://developers.cloudflare.com/workers-ai)
+  - [Drizzle ORM Docs](https://orm.drizzle.team)
+  - [Awilix Guide](https://github.com/jeffijoe/awilix/blob/master/README.md)
+  - [DaisyUI Components](https://daisyui.com)
+  - [TailwindCSS Form Layouts](https://tailwindcss.com/plus/ui-blocks/application-ui/forms/form-layouts)
+  - [i18next Documentation](https://www.i18next.com)
+  - [Zod Documentation](https://zod.dev)
+  - [Playwright Documentation](https://playwright.dev)
+  - [Vitest Documentation](https://vitest.dev)
+  - [Biome.js Documentation](https://biomejs.dev)
+  - [Lucide Icons](https://lucide.dev)
+
+  ---
+
+  ## Quick Reference
+
+  ### Development Commands
+
+  ```bash
+  # Installation
+  pnpm install                    # Install dependencies (postinstall runs `pnpm typecheck`)
+  docker-compose up -d            # Start local PostgreSQL for Hyperdrive
+
+  # Development
+  pnpm dev                        # Start Astro dev server (http://localhost:4321)
+
+  # Code Quality
+  pnpm lint                       # biome check --write (lint + format + organize imports)
+  pnpm typecheck                  # wrangler types && tsc -b  (use `astro check` for .astro)
+
+  # Database (recommended scripts — wire into package.json with drizzle-kit)
+  pnpm d1:generate                # Generate D1 migrations from schema
+  pnpm d1:migrate                 # Apply D1 migrations (wrangler d1 migrations apply --local)
+  pnpm db:generate                # Generate Hyperdrive migrations from schema
+  pnpm db:migrate                 # Apply Hyperdrive migrations (local Docker)
+
+  # Testing
+  pnpm test                       # Run all Vitest tests
+  pnpm test:e2e                   # Run Playwright E2E tests
+
+  # Build & Preview
+  pnpm build                      # Production build (astro build)
+  pnpm preview                    # astro build && astro preview
+
+  # Deploy (Wrangler)
+  npx wrangler deploy             # Deploy the Worker (or `wrangler versions upload/deploy`)
+  ```
+
+  ### File Naming Patterns
+
+  | Pattern             | Example                                 |
+  | ------------------- | --------------------------------------- |
+  | Astro page          | `index.astro`, `sign-in.astro`          |
+  | Astro layout        | `Layout.astro`                          |
+  | Astro component     | `Welcome.astro`                         |
+  | React island        | `react/Counter.tsx`                     |
+  | Vue island          | `vue/Counter.vue`                       |
+  | Solid island        | `solid/Counter.tsx`                     |
+  | Component test      | `__tests__/Counter.test.tsx`            |
+  | Service             | `user.service.ts`                       |
+  | Service test        | `__tests__/user.service.test.ts`        |
+  | Engine              | `auth.engine.ts`                        |
+  | Schema              | `user.schema.ts`                        |
+  | Type                | `user.types.ts`                         |
+  | Route (Hono)        | `routes/v1/users.ts`                    |
+  | Integration test    | `__tests__/*.integration.test.ts`       |
+  | E2E test            | `e2e/*.spec.ts`                         |
+  | Middleware          | `error-handler.ts`                      |
+  | Utility             | `date.utils.ts`                         |
+  | Durable Object      | `counter.do.ts`                         |
+  | DI Container        | `containers/index.ts`                   |
+  | i18n config         | `i18n/config.ts`                        |
+
+  ### Environment Variables
+
+  ```bash
+  # .dev.vars (local dev — NOT committed; resolved into wrangler.json by scripts/gen-wrangler.js)
+  VALUE_FROM_CLOUDFLARE=your_value_here
+  KV_ID=your_kv_id_here
+  D1_DB_ID=your_d1_db_id_here
+  HYPERDRIVE_DB_ID=your_hyperdrive_db_id_here
+  VECTORIZE_INDEX_NAME=your_vectorize_index_name_here
+  # Recommended for CORS/CSRF origin checks:
+  CORS_ALLOWED_ORIGINS=http://localhost:4321
+  ```
+
+  > **⚠️ Repo state:** `CORS_ALLOWED_ORIGINS` is commented out in the `wrangler.jsonc` `vars`
+  > section. Add it to enable CORS/CSRF origin checks at runtime — without it
+  > `c.env.CORS_ALLOWED_ORIGINS` is `undefined` and origin checks behave unexpectedly.
+
+  ```jsonc
+  // wrangler.jsonc — vars (placeholders resolved from .dev.vars by gen-wrangler.js)
+  {
+    "vars": {
+      "CORS_ALLOWED_ORIGINS": "http://localhost:4321,https://your-domain.com",
+      "VALUE_FROM_CLOUDFLARE": "${VALUE_FROM_CLOUDFLARE}"
+    }
+  }
+  ```
+
+  ### Wrangler Bindings Summary
+
+  All bindings are defined in `wrangler.jsonc` and auto-typed in `worker-configuration.d.ts`:
+
+  | Binding              | Type                     | Config Key          | Local Dev Status       |
+  | -------------------- | ------------------------ | ------------------- | ---------------------- |
+  | `D1`                 | `D1Database`             | `d1_databases`      | ✅ Local via Wrangler  |
+  | `HYPERDRIVE`         | `Hyperdrive`             | `hyperdrive`        | ✅ Docker PostgreSQL   |
+  | `KV`                 | `KVNamespace`            | `kv_namespaces`     | ✅ Local via Wrangler  |
+  | `R2`                 | `R2Bucket`               | `r2_buckets`        | ⚠️ Commented (paid plan)|
+  | `DO_COUNTER`         | `DurableObjectNamespace` | `durable_objects`   | ✅ Local sqlite_classes|
+  | `VECTORIZE`          | `VectorizeIndex`         | `vectorize`         | ⚠️ `remote: true`     |
+  | `AI`                 | `Ai`                     | `ai`                | ⚠️ `remote: true`     |
+  | `BROWSER`            | `Fetcher`                | `browser`           | ⚠️ Remote only         |
+  | `LONG_RATE_LIMITER`  | `RateLimit`              | `ratelimits`        | ✅ Local via Wrangler  |
+  | `SHORT_RATE_LIMITER` | `RateLimit`              | `ratelimits`        | ✅ Local via Wrangler  |
+  | `ASSETS`             | `Fetcher`                | `assets`            | ✅ Local via Wrangler  |
+
+  > **Note:** `VECTORIZE` and `AI` use `remote: true` — they require an active Cloudflare account even during local development (`wrangler dev`). `R2` is commented out in `wrangler.jsonc` (paid plan); uncomment `r2_buckets` once available. Ensure bindings are provisioned before testing these features.
+
+# Per-artifact rules
+# These rules are injected into the AI context when working on specific artifacts.
+rules:
+  proposal:
+    - "Focus on the 'Why' and user value"
+    - "Keep proposals under 500 words"
+    - "Always include a 'Non-goals' section"
+    - "Define success metrics"
+    - "Reference Cloudflare service selection guide for infrastructure decisions"
+
+  design:
+    - "Focus on the 'How' and architecture"
+    - "Include sequence diagrams for complex flows"
+    - "Address edge cases and error handling"
+    - "Verify security implications (CSRF, CORS, Auth, Rate Limiting)"
+    - "Consider performance impacts (bundle size, cold start, query efficiency)"
+    - "Follow clean architecture layers (Routes → Engine → Service) with Awilix interface bindings"
+    - "Specify which Cloudflare services are used and why"
+    - "Choose the island framework (React/Vue/Solid) performance-first (default SolidJS → Vue → React for compatibility) and the lightest `client:*` hydration; record the reason"
+    - "Specify D1 vs Hyperdrive schema/migrations explicitly (never mix)"
+    - "Include accessibility + SEO considerations (semantic HTML, ARIA, keyboard nav, meta/hreflang)"
+
+  tasks:
+    - "Break tasks into atomic, verifiable chunks (max 2 hours)"
+    - "Include file paths and command examples"
+    - "Specify test coverage requirements (unit, integration, E2E) — minimum 90% enforced"
+    - "Define clear acceptance criteria"
+    - "Include i18n translation key additions when UI text changes (Astro i18n + i18next)"
+    - "Specify the island framework + folder (react/, vue/, solid/) and the `client:*` directive for interactive UI"
+    - "Reference DaisyUI components and TailwindCSS patterns for UI tasks"
+    - "E2E test tasks MUST specify the `from Playwright-E2E` data prefix convention"
+
+  spec:
+    - "Must be the source of truth for the capability"
+    - "Keep it up-to-date with implementation"
+    - "Reference design decisions"
+    - "Document API endpoints with Zod schema references"
+    - "Include Cloudflare binding dependencies"
+    - "Document accessibility requirements met"
+    - "Document CSRF and CORS behavior for all mutation endpoints"
+    - "Document E2E test data prefix convention adherence"

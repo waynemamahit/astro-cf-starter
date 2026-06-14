@@ -1,0 +1,41 @@
+image: node:lts
+
+stages:
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+
+before_script:
+  # Use Node.js version defined in package.json -> engines.node
+  - export NODE_VERSION=$(node -p "require('./package.json').engines.node")
+  - npm install -g n
+  - n $NODE_VERSION
+  - hash -r
+  - node --version
+  - npm install -g pnpm@latest
+  - pnpm install
+  - pnpm run build
+
+after_script:
+  - export CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN
+  - pnpm exec wrangler deploy
+
+deploy_staging:
+  stage: deploy
+  script:
+    - node scripts/gen-wrangler.js staging
+  environment:
+    name: staging
+  only:
+    - dev
+
+deploy_production:
+  stage: deploy
+  script:
+    - node scripts/gen-wrangler.js production
+  environment:
+    name: production
+  only:
+    - main

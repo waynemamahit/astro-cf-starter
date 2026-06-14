@@ -1,0 +1,41 @@
+image: node:lts
+
+definitions:
+  scripts:
+    # Use Node.js version defined in package.json -> engines.node
+    - &use-node-version >-
+      export NODE_VERSION=$(node -p "require('./package.json').engines.node")
+      && npm install -g n
+      && n $NODE_VERSION
+      && hash -r
+      && node --version
+
+pipelines:
+  branches:
+    dev:
+      - step:
+          name: Deploy to Staging
+          script:
+            - *use-node-version
+            - npm install -g pnpm@latest
+            - pnpm install
+            - pnpm run build
+            - node scripts/gen-wrangler.js staging
+            - export CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN
+            - pnpm exec wrangler deploy
+          # Define these secrets in Repository Settings > Repository variables:
+          # - CLOUDFLARE_API_TOKEN
+
+    main:
+      - step:
+          name: Deploy to Production
+          script:
+            - *use-node-version
+            - npm install -g pnpm@latest
+            - pnpm install
+            - pnpm run build
+            - node scripts/gen-wrangler.js production
+            - export CLOUDFLARE_API_TOKEN=$CLOUDFLARE_API_TOKEN
+            - pnpm exec wrangler deploy
+          # Define these secrets in Repository Settings > Repository variables:
+          # - CLOUDFLARE_API_TOKEN

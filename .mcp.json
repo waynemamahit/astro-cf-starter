@@ -1,0 +1,20 @@
+{
+	"mcpServers": {
+		"Astro docs": {
+			"type": "http",
+			"url": "https://mcp.docs.astro.build/mcp"
+		},
+		"daisyui-docs": {
+			"command": "npx",
+			"args": ["-y", "mcpdoc", "--urls", "daisyUI:https://daisyui.com/llms.txt"]
+		},
+		"playwright": {
+			"command": "npx",
+			"args": ["@playwright/mcp@latest"]
+		},
+		"playwright-executeautomation": {
+			"command": "npx",
+			"args": ["-y", "@executeautomation/playwright-mcp-server"]
+		}
+	}
+}
