@@ -42,7 +42,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 ### Testing
 - **Vitest 4.1+** — Unit + integration testing (`vitest/config`, jsdom, React JSX runtime)
 - **Testing Library (per framework)** — `@testing-library/react`, `@testing-library/vue`, `@solidjs/testing-library`
-- **Playwright 1.60+** — End-to-end testing across Chromium, Firefox, WebKit
+- **Playwright 1.61+** — End-to-end testing across Chromium, Firefox, WebKit
 - **90%+ Coverage** — Target coverage (add `@vitest/coverage-v8` + `thresholds` to enforce)
 - **Playwright E2E Data Prefix** — All E2E test data input MUST use the prefix `from Playwright-E2E`
 - **Comprehensive Testing** — Component, API, utility, integration, and E2E tests
@@ -52,7 +52,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Biome.js 2.5+** — Fast formatting and linting
 - **Docker Compose** — Local PostgreSQL for Hyperdrive development
 - **OpenSpec** — Specification-driven development workflow
-- **Wrangler 4.100+** — Cloudflare CLI for development and deployment
+- **Wrangler 4.103+** — Cloudflare CLI for development and deployment
 
 ### Cloudflare Services
 - **D1** — SQLite database at the edge (separate schema in `db/d1/`)

@@ -25,12 +25,12 @@ context: |
 
   | Category               | Technology | Version | Purpose                                        |
   | ---------------------- | ---------- | ------- | ---------------------------------------------- |
-  | **Runtime (local)**    | Node.js    | 24.16+  | Local tooling runtime (pinned via `engines`)   |
+  | **Runtime (local)**    | Node.js    | 24.17+  | Local tooling runtime (pinned via `engines`)   |
   | **Runtime (edge)**     | workerd    | latest  | Cloudflare Workers runtime (production target) |
   | **Package Manager**    | PNPM       | 11+     | Fast, efficient dependency management          |
   | **Language**           | TypeScript | 6.0+    | Type safety, **no `any` type allowed**         |
   | **Formatting/Linting** | Biome.js   | 2.5+    | Fast, unified code quality tooling             |
-  | **Build Tool**         | Vite       | 7+      | Used by Astro for build and dev server         |
+  | **Build Tool**         | Vite       | 8+      | Used by Astro for build and dev server         |
 
   ### Frontend
 
@@ -43,7 +43,7 @@ context: |
   | **@astrojs/mdx**            | 6.0+    | MDX content pages/components (`.mdx`) with island support           |
   | **TailwindCSS**             | 4.3+    | Utility-first CSS via `@tailwindcss/vite`, mobile-first responsive   |
   | **DaisyUI**                 | 5.5+    | Component library + themes (default: **light**) via `@plugin`        |
-  | **Lucide**                  | 1.17+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
+  | **Lucide**                  | 1.21+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
   | **Astro i18n + i18next**    | latest  | Frontend i18n via Astro built-in routing + i18next catalogs         |
 
   ### Backend
@@ -71,7 +71,7 @@ context: |
   | **@testing-library/dom**        | 10.4+   | Shared DOM queries across frameworks             |
   | **@testing-library/user-event** | 14.6+   | Realistic user interaction simulation            |
   | **@testing-library/jest-dom**   | 6.9+    | Extended DOM matchers for assertions             |
-  | **Playwright**                  | 1.60+   | End-to-end testing across browsers               |
+  | **Playwright**                  | 1.61+   | End-to-end testing across browsers               |
   | **jsdom**                       | 29.1+   | DOM environment for Vitest component tests       |
   | **@vitest/coverage-v8**         | 4.1+    | Coverage provider with 90% threshold enforcement |
 
@@ -94,7 +94,7 @@ context: |
   | Technology                  | Purpose                                            |
   | --------------------------- | -------------------------------------------------- |
   | **Docker Compose**          | Local PostgreSQL for Hyperdrive development        |
-  | **Wrangler**                | 4.100+, Cloudflare CLI for dev, types, deployment  |
+  | **Wrangler**                | 4.103+, Cloudflare CLI for dev, types, deployment  |
   | **@astrojs/cloudflare**     | 13.7+, Astro → Cloudflare Workers adapter          |
   | **scripts/gen-wrangler.js** | Resolves `${...}` placeholders in `wrangler.jsonc` |
 
@@ -1483,7 +1483,7 @@ context: |
 
   | Package                 | Version | Purpose                            |
   | ----------------------- | ------- | ---------------------------------- |
-  | `astro`                 | 6.4.6   | Server-first framework + islands   |
+  | `astro`                 | 6.4.8   | Server-first framework + islands   |
   | `@astrojs/cloudflare`   | 13.7.0  | Cloudflare Workers adapter         |
   | `@astrojs/mdx`          | 6.0.3   | MDX content pages/components       |
   | `@astrojs/react`        | 5.0.7   | React islands integration          |
@@ -1492,15 +1492,15 @@ context: |
   | `react` / `react-dom`   | 19.2.7  | React UI framework + DOM renderer  |
   | `vue`                   | 3.5.38  | Vue UI framework                   |
   | `solid-js`              | 1.9.13  | SolidJS UI framework               |
-  | `hono`                  | 4.12.25 | Backend API framework              |
+  | `hono`                  | 4.12.26 | Backend API framework              |
   | `@hono/zod-validator`   | 0.8.0   | Zod validation middleware          |
   | `hono-rate-limiter`     | 0.5.3   | Rate limiting middleware           |
   | `drizzle-orm`           | 0.45.2  | Type-safe ORM                      |
   | `zod`                   | 4.4.3   | Schema validation                  |
-  | `awilix`                | 13.0.4  | Dependency injection (v13 API)     |
-  | `lucide-react`          | 1.18.0  | Icons (React)                      |
-  | `@lucide/vue`           | 1.18.0  | Icons (Vue)                        |
-  | `lucide-solid`          | 1.18.0  | Icons (SolidJS)                    |
+  | `awilix`                | 13.0.5  | Dependency injection (v13 API)     |
+  | `lucide-react`          | 1.21.0  | Icons (React)                      |
+  | `@lucide/vue`           | 1.21.0  | Icons (Vue)                        |
+  | `lucide-solid`          | 1.21.0  | Icons (SolidJS)                    |
   | `postgres`              | 3.4.9   | PostgreSQL driver (Hyperdrive)     |
   | `bcryptjs`              | 3.0.3   | Password hashing                   |
 
@@ -1517,7 +1517,7 @@ context: |
   | `tailwindcss`                       | 4.3.1   | Utility CSS                    |
   | `@tailwindcss/vite`                 | 4.3.1   | TailwindCSS Vite plugin        |
   | `daisyui`                           | 5.5.23  | UI components                  |
-  | `vitest`                            | 4.1.8   | Testing framework              |
+  | `vitest`                            | 4.1.9   | Testing framework              |
   | `@testing-library/react`            | 16.3.2  | React component testing        |
   | `@testing-library/vue`              | 8.1.0   | Vue component testing          |
   | `@solidjs/testing-library`          | 0.8.10  | Solid component testing        |
@@ -1526,15 +1526,15 @@ context: |
   | `@testing-library/user-event`       | 14.6.1  | User interaction simulation    |
   | `@testing-library/jest-dom`         | 6.9.1   | DOM matchers                   |
   | `jsdom`                             | 29.1.1  | DOM environment for tests      |
-  | `@playwright/test`                  | 1.60.0  | E2E testing                    |
+  | `@playwright/test`                  | 1.61.0  | E2E testing                    |
   | `drizzle-kit`                       | 0.31.10 | Migration generation           |
-  | `wrangler`                          | 4.100.0 | Cloudflare Workers CLI         |
-  | `@types/node`                       | 25.9.3  | Node type definitions          |
+  | `wrangler`                          | 4.103.0 | Cloudflare Workers CLI         |
+  | `@types/node`                       | 26.0.0  | Node type definitions          |
   | `@types/pg`                         | 8.20.0  | PostgreSQL type definitions    |
   | `@types/react` / `@types/react-dom` | 19.2.x  | React type definitions         |
 
-  > **Note:** `vite` is pinned to `^7` via `package.json` `overrides`; Node is pinned to
-  > `24.16.0` via `engines`. `postinstall` runs `pnpm typecheck`.
+  > **Note:** `vite` is pinned to `^8` via `package.json` `overrides`; Node is pinned to
+  > `24.17.0` via `engines`. `postinstall` runs `pnpm typecheck`.
 
   ### External Documentation
 
