@@ -30,17 +30,20 @@ context: |
   | **Package Manager**    | PNPM       | 11+     | Fast, efficient dependency management          |
   | **Language**           | TypeScript | 6.0+    | Type safety, **no `any` type allowed**         |
   | **Formatting/Linting** | Biome.js   | 2.5+    | Fast, unified code quality tooling             |
-  | **Build Tool**         | Vite       | 8+      | Used by Astro for build and dev server         |
+  | **Build Tool**         | Vite       | 7+      | Used by Astro for build and dev server (pinned via `package.json` overrides) |
 
   ### Frontend
 
   | Technology                  | Version | Purpose                                                              |
   | --------------------------- | ------- | -------------------------------------------------------------------- |
-  | **Astro**                   | 6.4+    | Server-first framework, islands architecture, `output: "server"`     |
+  | **Astro**                   | 7.0+    | Server-first framework, islands architecture, `output: "server"`     |
   | **React**                   | 19.2+   | Islands under `src/components/react/*` (hooks, Suspense)             |
   | **Vue**                     | 3.5+    | Islands under `src/components/vue/*` (`<script setup>`)              |
   | **SolidJS**                 | 1.9+    | Islands under `src/components/solid/*` (fine-grained signals)        |
-  | **@astrojs/mdx**            | 6.0+    | MDX content pages/components (`.mdx`) with island support           |
+  | **@astrojs/mdx**            | 7.0+    | MDX content pages/components (`.mdx`) with island support           |
+  | **@astrojs/react**          | 6.0+    | React islands integration under `**/react/*`                        |
+  | **@astrojs/vue**            | 7.0+    | Vue islands integration under `**/vue/*`                            |
+  | **@astrojs/solid-js**       | 7.0+    | SolidJS islands integration under `**/solid/*`                      |
   | **TailwindCSS**             | 4.3+    | Utility-first CSS via `@tailwindcss/vite`, mobile-first responsive   |
   | **DaisyUI**                 | 5.5+    | Component library + themes (default: **light**) via `@plugin`        |
   | **Lucide**                  | 1.21+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
@@ -51,7 +54,7 @@ context: |
   | Technology              | Version | Purpose                                                       |
   | ----------------------- | ------- | ------------------------------------------------------------- |
   | **Hono**                | 4.12+   | Edge-native API mounted in the Worker (`src/app.ts`), SOLID   |
-  | **@astrojs/cloudflare** | 13.7+   | Astro adapter; Hono delegates SSR via `handle()`              |
+  | **@astrojs/cloudflare** | 14.0+   | Astro adapter; Hono delegates SSR via `handle()`              |
   | **i18next**             | latest  | Backend i18n for API messages, integrated with Hono           |
   | **Drizzle ORM**         | 0.45+   | Type-safe database + migrations (separate D1 + Hyperdrive)    |
   | **Zod**                 | 4+      | Runtime schema validation (shared frontend + backend)         |
@@ -64,7 +67,7 @@ context: |
 
   | Technology                      | Version | Purpose                                          |
   | ------------------------------- | ------- | ------------------------------------------------ |
-  | **Vitest**                      | 4.1+    | Unit + integration tests (`vitest/config` + jsdom) |
+  | **Vitest**                      | 4.1+    | Unit + integration tests (`getViteConfig` from `astro/config`) |
   | **@testing-library/react**      | 16.3+   | React island component testing                   |
   | **@testing-library/vue**        | 8.1+    | Vue island component testing                     |
   | **@solidjs/testing-library**    | 0.8+    | SolidJS island component testing                 |
@@ -94,8 +97,8 @@ context: |
   | Technology                  | Purpose                                            |
   | --------------------------- | -------------------------------------------------- |
   | **Docker Compose**          | Local PostgreSQL for Hyperdrive development        |
-  | **Wrangler**                | 4.103+, Cloudflare CLI for dev, types, deployment  |
-  | **@astrojs/cloudflare**     | 13.7+, Astro → Cloudflare Workers adapter          |
+  | **Wrangler**                | 4.104+, Cloudflare CLI for dev, types, deployment  |
+  | **@astrojs/cloudflare**     | 14.0+, Astro → Cloudflare Workers adapter          |
   | **scripts/gen-wrangler.js** | Resolves `${...}` placeholders in `wrangler.jsonc` |
 
   ---
@@ -239,7 +242,7 @@ context: |
   ├── package.json                     # Dependencies and scripts (PNPM)
   ├── playwright.config.ts             # Playwright E2E configuration
   ├── tsconfig.json                    # TypeScript config (extends astro/tsconfigs/strict)
-  ├── vitest.config.ts                 # Vitest config (vitest/config, jsdom, React JSX runtime)
+  ├── vitest.config.ts                 # Vitest config (getViteConfig from astro/config)
   ├── wrangler.jsonc                   # Cloudflare Workers configuration (source of truth)
   └── worker-configuration.d.ts        # Auto-generated Cloudflare binding types
   ```
@@ -368,7 +371,7 @@ context: |
   // biome.json — framework lint domains are enabled per-folder so each island
   // (react/vue/solid) gets the right rules without cross-contamination.
   {
-    "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
     "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
     "files": { "ignoreUnknown": false },
     "html": { "formatter": { "enabled": true }, "experimentalFullSupportEnabled": true },
@@ -1104,23 +1107,19 @@ context: |
   - **No skipped tests** in production branches
   - **Coverage enforced** via the Vitest v8 coverage provider with a `thresholds` block
 
-  > **⚠️ Repo state:** `vitest.config.ts` uses `defineConfig` from `vitest/config` (jsdom env,
-  > `esbuild.jsxImportSource: "react"`, `include: ["src/**/*.test.ts(x)"]`). It has **no** `coverage`
-  > block or `setupFiles`, and `@vitest/coverage-v8` is **not** yet a devDependency. The `test`
-  > script is `vitest` (watch mode) — CI should call `vitest run --coverage`. Add the provider, a
+  > **⚠️ Repo state:** `vitest.config.ts` uses `getViteConfig` from `astro/config` (Astro 7
+  > integration; inherits Vite/Astro aliases). It is a minimal shell with no `environment`,
+  > `setupFiles`, or `coverage` block, and `@vitest/coverage-v8` is **not** yet a devDependency. The `test`
+  > script is `vitest` (watch mode) — CI should call `vitest run --coverage`. Add jsdom,
   > `vitest.setup.ts` (registers `@testing-library/jest-dom`), and the `thresholds` below — without
-  > them Vitest will not fail the build when coverage drops below 90%. Components in non-React
-  > frameworks (Vue/Solid) compile through their own test transforms; if you need to render `.astro`
-  > files or Astro path aliases inside tests, migrate to Astro's `getViteConfig` wrapper.
+  > them Vitest will not fail the build when coverage drops below 90%.
 
   ```typescript
   /// <reference types="vitest/config" />
-  // vitest.config.ts — current base + recommended 90% coverage additions
-  import { defineConfig } from "vitest/config";
+  // vitest.config.ts — getViteConfig base + recommended 90% coverage additions
+  import { getViteConfig } from "astro/config";
 
-  export default defineConfig({
-    // Global JSX runtime for tests is React; Solid/Vue islands use their own transforms.
-    esbuild: { jsx: "automatic", jsxImportSource: "react" },
+  export default getViteConfig({
     test: {
       globals: true,
       environment: "jsdom",
@@ -1146,7 +1145,7 @@ context: |
 
   ### Unit Testing (Vitest)
 
-  - **Environment**: jsdom (via `vitest.config.ts`)
+  - **Environment**: jsdom (add via `getViteConfig` in `vitest.config.ts`)
   - **Setup**: `vitest.setup.ts` registers `@testing-library/jest-dom` matchers
   - **Component testing (per framework)**:
     - React islands → `@testing-library/react` (`render`, `screen`)
@@ -1483,16 +1482,16 @@ context: |
 
   | Package                 | Version | Purpose                            |
   | ----------------------- | ------- | ---------------------------------- |
-  | `astro`                 | 6.4.8   | Server-first framework + islands   |
-  | `@astrojs/cloudflare`   | 13.7.0  | Cloudflare Workers adapter         |
-  | `@astrojs/mdx`          | 6.0.3   | MDX content pages/components       |
-  | `@astrojs/react`        | 5.0.7   | React islands integration          |
-  | `@astrojs/vue`          | 6.0.1   | Vue islands integration            |
-  | `@astrojs/solid-js`     | 6.0.1   | SolidJS islands integration        |
+  | `astro`                 | 7.0.2   | Server-first framework + islands   |
+  | `@astrojs/cloudflare`   | 14.0.0  | Cloudflare Workers adapter         |
+  | `@astrojs/mdx`          | 7.0.0   | MDX content pages/components       |
+  | `@astrojs/react`        | 6.0.0   | React islands integration          |
+  | `@astrojs/vue`          | 7.0.0   | Vue islands integration            |
+  | `@astrojs/solid-js`     | 7.0.0   | SolidJS islands integration        |
   | `react` / `react-dom`   | 19.2.7  | React UI framework + DOM renderer  |
   | `vue`                   | 3.5.38  | Vue UI framework                   |
   | `solid-js`              | 1.9.13  | SolidJS UI framework               |
-  | `hono`                  | 4.12.26 | Backend API framework              |
+  | `hono`                  | 4.12.27 | Backend API framework              |
   | `@hono/zod-validator`   | 0.8.0   | Zod validation middleware          |
   | `hono-rate-limiter`     | 0.5.3   | Rate limiting middleware           |
   | `drizzle-orm`           | 0.45.2  | Type-safe ORM                      |
@@ -1513,7 +1512,7 @@ context: |
   | Package                             | Version | Purpose                        |
   | ----------------------------------- | ------- | ------------------------------ |
   | `typescript`                        | 6.0.3   | Type checking                  |
-  | `@biomejs/biome`                    | 2.5.0   | Formatting + linting           |
+  | `@biomejs/biome`                    | 2.5.1   | Formatting + linting           |
   | `tailwindcss`                       | 4.3.1   | Utility CSS                    |
   | `@tailwindcss/vite`                 | 4.3.1   | TailwindCSS Vite plugin        |
   | `daisyui`                           | 5.5.23  | UI components                  |
@@ -1526,14 +1525,14 @@ context: |
   | `@testing-library/user-event`       | 14.6.1  | User interaction simulation    |
   | `@testing-library/jest-dom`         | 6.9.1   | DOM matchers                   |
   | `jsdom`                             | 29.1.1  | DOM environment for tests      |
-  | `@playwright/test`                  | 1.61.0  | E2E testing                    |
+  | `@playwright/test`                  | 1.61.1  | E2E testing                    |
   | `drizzle-kit`                       | 0.31.10 | Migration generation           |
-  | `wrangler`                          | 4.103.0 | Cloudflare Workers CLI         |
+  | `wrangler`                          | 4.104.0 | Cloudflare Workers CLI         |
   | `@types/node`                       | 26.0.0  | Node type definitions          |
   | `@types/pg`                         | 8.20.0  | PostgreSQL type definitions    |
   | `@types/react` / `@types/react-dom` | 19.2.x  | React type definitions         |
 
-  > **Note:** `vite` is pinned to `^8` via `package.json` `overrides`; Node is pinned to
+  > **Note:** `vite` is pinned to `^7` via `package.json` `overrides`; Node is pinned to
   > `24.17.0` via `engines`. `postinstall` runs `pnpm typecheck`.
 
   ### External Documentation

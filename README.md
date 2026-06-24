@@ -7,9 +7,9 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 ## Key Features
 
 ### Frontend
-- **Astro 6.4+** — Server-first Islands Architecture that ships minimal client JS
+- **Astro 7.0+** — Server-first Islands Architecture that ships minimal client JS
 - **Multi-framework islands** — React 19, Vue 3, and SolidJS components hydrated via `client:*` directives (scoped by folder: `**/react/*`, `**/vue/*`, `**/solid/*`); pick the framework **performance-first**, fall back to the best-compatibility framework when a required library demands it
-- **MDX** — `@astrojs/mdx` for content pages/components (`.mdx`) with island support
+- **MDX** — `@astrojs/mdx` 7+ for content pages/components (`.mdx`) with island support
 - **TypeScript 6.0+** — Strict type safety (`astro/tsconfigs/strict`), **no `any` type allowed**
 - **TailwindCSS 4.3+** — Utility-first CSS with mobile-first responsive design (`@tailwindcss/vite`)
 - **Semantic HTML & ARIA** — Accessibility (skip links, keyboard nav, focus management) and SEO
@@ -40,7 +40,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Theme & Language Selector** — Built into the main layout with DaisyUI themes
 
 ### Testing
-- **Vitest 4.1+** — Unit + integration testing (`vitest/config`, jsdom, React JSX runtime)
+- **Vitest 4.1+** — Unit + integration testing via Astro's `getViteConfig` (`vitest.config.ts`)
 - **Testing Library (per framework)** — `@testing-library/react`, `@testing-library/vue`, `@solidjs/testing-library`
 - **Playwright 1.61+** — End-to-end testing across Chromium, Firefox, WebKit
 - **90%+ Coverage** — Target coverage (add `@vitest/coverage-v8` + `thresholds` to enforce)
@@ -52,7 +52,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Biome.js 2.5+** — Fast formatting and linting
 - **Docker Compose** — Local PostgreSQL for Hyperdrive development
 - **OpenSpec** — Specification-driven development workflow
-- **Wrangler 4.103+** — Cloudflare CLI for development and deployment
+- **Wrangler 4.104+** — Cloudflare CLI for development and deployment
 
 ### Cloudflare Services
 - **D1** — SQLite database at the edge (separate schema in `db/d1/`)
@@ -127,7 +127,7 @@ pnpm install
 ```
 
 This installs all project dependencies including:
-- Astro + adapters (`@astrojs/cloudflare`, `@astrojs/react`, `@astrojs/vue`, `@astrojs/solid-js`)
+- Astro 7 + adapters (`@astrojs/cloudflare` 14, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
 - React 19, Vue 3, SolidJS, TypeScript
 - TailwindCSS, DaisyUI, Lucide (react / vue / solid)
 - Hono, Drizzle ORM, Zod
@@ -314,7 +314,7 @@ pnpm test:e2e
 ### Coverage Requirements
 
 - **Target coverage: 90%** for all metrics (statements, branches, functions, lines)
-- To enforce it, add `@vitest/coverage-v8` and a `coverage.thresholds` block to `vitest.config.ts` (not configured yet)
+- To enforce it, add `@vitest/coverage-v8` and a `coverage.thresholds` block to `vitest.config.ts` (`getViteConfig` from `astro/config`; not configured yet)
 - Tests are located in `__tests__/` directories alongside source files
 - Use `*.test.ts` or `*.test.tsx` for unit tests
 - Use `*.integration.test.ts` for integration tests
@@ -389,7 +389,7 @@ npx wrangler versions deploy
 ├── package.json                  # Dependencies and scripts (PNPM)
 ├── playwright.config.ts          # Playwright E2E configuration
 ├── tsconfig.json                 # TypeScript config (extends astro/tsconfigs/strict)
-├── vitest.config.ts              # Vitest config (vitest/config, jsdom, React JSX runtime)
+├── vitest.config.ts              # Vitest config (getViteConfig from astro/config)
 ├── wrangler.jsonc                # Cloudflare Workers configuration
 └── worker-configuration.d.ts     # Auto-generated Cloudflare binding types
 ```
