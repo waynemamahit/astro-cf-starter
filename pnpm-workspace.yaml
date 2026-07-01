@@ -14,8 +14,20 @@ minimumReleaseAgeExclude:
   - '@biomejs/cli-win32-arm64@2.5.1'
   - '@biomejs/cli-win32-x64@2.5.1'
   - '@playwright/test@1.61.1'
-  - astro@7.0.2
-  - miniflare@4.20260623.0
+  - astro@7.0.4
+  - miniflare@4.20260630.0
   - playwright-core@1.61.1
   - playwright@1.61.1
-  - wrangler@4.104.0
+  - wrangler@4.106.0
+  - '@astrojs/cloudflare@14.0.2'
+  - '@astrojs/compiler-binding-darwin-arm64@0.3.0'
+  - '@astrojs/compiler-binding-darwin-x64@0.3.0'
+  - '@astrojs/compiler-binding-linux-arm64-gnu@0.3.0'
+  - '@astrojs/compiler-binding-linux-arm64-musl@0.3.0'
+  - '@astrojs/compiler-binding-linux-x64-gnu@0.3.0'
+  - '@astrojs/compiler-binding-linux-x64-musl@0.3.0'
+  - '@astrojs/compiler-binding-wasm32-wasi@0.3.0'
+  - '@astrojs/compiler-binding-win32-arm64-msvc@0.3.0'
+  - '@astrojs/compiler-binding-win32-x64-msvc@0.3.0'
+  - '@astrojs/compiler-binding@0.3.0'
+  - '@astrojs/compiler-rs@0.3.0'

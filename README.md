@@ -13,7 +13,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **TypeScript 6.0+** — Strict type safety (`astro/tsconfigs/strict`), **no `any` type allowed**
 - **TailwindCSS 4.3+** — Utility-first CSS with mobile-first responsive design (`@tailwindcss/vite`)
 - **Semantic HTML & ARIA** — Accessibility (skip links, keyboard nav, focus management) and SEO
-- **DaisyUI 5.5+** — UI components with customizable themes (default: **light**)
+- **DaisyUI 5.6+** — UI components with customizable themes (default: **light**)
 - **Lucide icons** — `lucide-react`, `@lucide/vue`, and `lucide-solid`
 - **i18n-ready** — Astro built-in i18n routing + i18next (not yet wired in)
 - **Form Layouts** — Following [TailwindCSS form layouts](https://tailwindcss.com/plus/ui-blocks/application-ui/forms/form-layouts)
@@ -52,7 +52,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Biome.js 2.5+** — Fast formatting and linting
 - **Docker Compose** — Local PostgreSQL for Hyperdrive development
 - **OpenSpec** — Specification-driven development workflow
-- **Wrangler 4.104+** — Cloudflare CLI for development and deployment
+- **Wrangler 4.106+** — Cloudflare CLI for development and deployment
 
 ### Cloudflare Services
 - **D1** — SQLite database at the edge (separate schema in `db/d1/`)
@@ -90,7 +90,7 @@ Before starting, ensure you have the following installed:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **Node.js** | 24+ LTS | JavaScript runtime |
+| **Node.js** | 24.18+ | JavaScript runtime (pinned in `engines`) |
 | **PNPM** | 11+ | Package manager |
 | **Docker** | Latest | Local PostgreSQL for Hyperdrive |
 | **Wrangler CLI** | Latest | Cloudflare deployments |
@@ -127,12 +127,12 @@ pnpm install
 ```
 
 This installs all project dependencies including:
-- Astro 7 + adapters (`@astrojs/cloudflare` 14, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
-- React 19, Vue 3, SolidJS, TypeScript
-- TailwindCSS, DaisyUI, Lucide (react / vue / solid)
-- Hono, Drizzle ORM, Zod
-- Vitest + Testing Library (react / vue / solid), Playwright
-- Awilix (dependency injection)
+- Astro 7.0+ + adapters (`@astrojs/cloudflare` 14.0+, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
+- React 19, Vue 3.5+, SolidJS 1.9+, TypeScript 6
+- TailwindCSS 4.3+, DaisyUI 5.6+, Lucide 1.22+ (react / vue / solid)
+- Hono 4.12+, Drizzle ORM 0.45+, Zod 4
+- Vitest 4.1+ + Testing Library (react / vue / solid), jsdom, Playwright 1.61+
+- Awilix 13+ (dependency injection), Wrangler 4.106+
 
 > **Note:** `postinstall` runs `pnpm typecheck` (`wrangler types && tsc -b`), so the first install also generates `worker-configuration.d.ts`.
 
@@ -308,13 +308,15 @@ pnpm test
 pnpm test:e2e
 ```
 
-> **Note:** Only `test` and `test:e2e` exist in `package.json`. For coverage/UI, add
-> `@vitest/coverage-v8` plus scripts like `test:cov` (`vitest run --coverage`) and `test:ui` (`vitest --ui`).
+> **Note:** Only `test` and `test:e2e` exist in `package.json`. `jsdom` is installed; wire
+> `environment: "jsdom"` in `vitest.config.ts`. For coverage/UI, add `@vitest/coverage-v8` plus
+> scripts like `test:cov` (`vitest run --coverage`) and `test:ui` (`vitest --ui`).
 
 ### Coverage Requirements
 
 - **Target coverage: 90%** for all metrics (statements, branches, functions, lines)
-- To enforce it, add `@vitest/coverage-v8` and a `coverage.thresholds` block to `vitest.config.ts` (`getViteConfig` from `astro/config`; not configured yet)
+- To enforce it, add `@vitest/coverage-v8` and a `coverage.thresholds` block to `vitest.config.ts`
+  (`getViteConfig` from `astro/config`; `jsdom` is installed but `environment` / `setupFiles` are not configured yet)
 - Tests are located in `__tests__/` directories alongside source files
 - Use `*.test.ts` or `*.test.tsx` for unit tests
 - Use `*.integration.test.ts` for integration tests

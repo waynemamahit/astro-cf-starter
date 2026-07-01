@@ -25,12 +25,12 @@ context: |
 
   | Category               | Technology | Version | Purpose                                        |
   | ---------------------- | ---------- | ------- | ---------------------------------------------- |
-  | **Runtime (local)**    | Node.js    | 24.17+  | Local tooling runtime (pinned via `engines`)   |
+  | **Runtime (local)**    | Node.js    | 24.18+  | Local tooling runtime (pinned via `engines`)   |
   | **Runtime (edge)**     | workerd    | latest  | Cloudflare Workers runtime (production target) |
   | **Package Manager**    | PNPM       | 11+     | Fast, efficient dependency management          |
   | **Language**           | TypeScript | 6.0+    | Type safety, **no `any` type allowed**         |
   | **Formatting/Linting** | Biome.js   | 2.5+    | Fast, unified code quality tooling             |
-  | **Build Tool**         | Vite       | 7+      | Used by Astro for build and dev server (pinned via `package.json` overrides) |
+  | **Build Tool**         | Vite       | 8+      | Used by Astro for build and dev server (transitive via Astro 7)              |
 
   ### Frontend
 
@@ -45,8 +45,8 @@ context: |
   | **@astrojs/vue**            | 7.0+    | Vue islands integration under `**/vue/*`                            |
   | **@astrojs/solid-js**       | 7.0+    | SolidJS islands integration under `**/solid/*`                      |
   | **TailwindCSS**             | 4.3+    | Utility-first CSS via `@tailwindcss/vite`, mobile-first responsive   |
-  | **DaisyUI**                 | 5.5+    | Component library + themes (default: **light**) via `@plugin`        |
-  | **Lucide**                  | 1.21+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
+  | **DaisyUI**                 | 5.6+    | Component library + themes (default: **light**) via `@plugin`        |
+  | **Lucide**                  | 1.22+   | Icons: `lucide-react`, `@lucide/vue`, `lucide-solid` (per framework) |
   | **Astro i18n + i18next**    | latest  | Frontend i18n via Astro built-in routing + i18next catalogs         |
 
   ### Backend
@@ -97,7 +97,7 @@ context: |
   | Technology                  | Purpose                                            |
   | --------------------------- | -------------------------------------------------- |
   | **Docker Compose**          | Local PostgreSQL for Hyperdrive development        |
-  | **Wrangler**                | 4.104+, Cloudflare CLI for dev, types, deployment  |
+  | **Wrangler**                | 4.106+, Cloudflare CLI for dev, types, deployment  |
   | **@astrojs/cloudflare**     | 14.0+, Astro → Cloudflare Workers adapter          |
   | **scripts/gen-wrangler.js** | Resolves `${...}` placeholders in `wrangler.jsonc` |
 
@@ -1108,11 +1108,11 @@ context: |
   - **Coverage enforced** via the Vitest v8 coverage provider with a `thresholds` block
 
   > **⚠️ Repo state:** `vitest.config.ts` uses `getViteConfig` from `astro/config` (Astro 7
-  > integration; inherits Vite/Astro aliases). It is a minimal shell with no `environment`,
+  > integration; inherits Vite 8 / Astro aliases). It is a minimal shell with no `environment`,
   > `setupFiles`, or `coverage` block, and `@vitest/coverage-v8` is **not** yet a devDependency. The `test`
-  > script is `vitest` (watch mode) — CI should call `vitest run --coverage`. Add jsdom,
-  > `vitest.setup.ts` (registers `@testing-library/jest-dom`), and the `thresholds` below — without
-  > them Vitest will not fail the build when coverage drops below 90%.
+  > script is `vitest` (watch mode) — CI should call `vitest run --coverage`. `jsdom` is installed;
+  > wire `environment: "jsdom"`, add `vitest.setup.ts` (registers `@testing-library/jest-dom`), and
+  > the `thresholds` below — without them Vitest will not fail the build when coverage drops below 90%.
 
   ```typescript
   /// <reference types="vitest/config" />
@@ -1145,7 +1145,7 @@ context: |
 
   ### Unit Testing (Vitest)
 
-  - **Environment**: jsdom (add via `getViteConfig` in `vitest.config.ts`)
+  - **Environment**: jsdom (installed; wire via `environment: "jsdom"` in `vitest.config.ts`)
   - **Setup**: `vitest.setup.ts` registers `@testing-library/jest-dom` matchers
   - **Component testing (per framework)**:
     - React islands → `@testing-library/react` (`render`, `screen`)
@@ -1482,14 +1482,14 @@ context: |
 
   | Package                 | Version | Purpose                            |
   | ----------------------- | ------- | ---------------------------------- |
-  | `astro`                 | 7.0.2   | Server-first framework + islands   |
-  | `@astrojs/cloudflare`   | 14.0.0  | Cloudflare Workers adapter         |
+  | `astro`                 | 7.0.4   | Server-first framework + islands   |
+  | `@astrojs/cloudflare`   | 14.0.2  | Cloudflare Workers adapter         |
   | `@astrojs/mdx`          | 7.0.0   | MDX content pages/components       |
   | `@astrojs/react`        | 6.0.0   | React islands integration          |
   | `@astrojs/vue`          | 7.0.0   | Vue islands integration            |
   | `@astrojs/solid-js`     | 7.0.0   | SolidJS islands integration        |
   | `react` / `react-dom`   | 19.2.7  | React UI framework + DOM renderer  |
-  | `vue`                   | 3.5.38  | Vue UI framework                   |
+  | `vue`                   | 3.5.39  | Vue UI framework                   |
   | `solid-js`              | 1.9.13  | SolidJS UI framework               |
   | `hono`                  | 4.12.27 | Backend API framework              |
   | `@hono/zod-validator`   | 0.8.0   | Zod validation middleware          |
@@ -1497,9 +1497,9 @@ context: |
   | `drizzle-orm`           | 0.45.2  | Type-safe ORM                      |
   | `zod`                   | 4.4.3   | Schema validation                  |
   | `awilix`                | 13.0.5  | Dependency injection (v13 API)     |
-  | `lucide-react`          | 1.21.0  | Icons (React)                      |
-  | `@lucide/vue`           | 1.21.0  | Icons (Vue)                        |
-  | `lucide-solid`          | 1.21.0  | Icons (SolidJS)                    |
+  | `lucide-react`          | 1.22.0  | Icons (React)                      |
+  | `@lucide/vue`           | 1.22.0  | Icons (Vue)                        |
+  | `lucide-solid`          | 1.22.0  | Icons (SolidJS)                    |
   | `postgres`              | 3.4.9   | PostgreSQL driver (Hyperdrive)     |
   | `bcryptjs`              | 3.0.3   | Password hashing                   |
 
@@ -1513,9 +1513,9 @@ context: |
   | ----------------------------------- | ------- | ------------------------------ |
   | `typescript`                        | 6.0.3   | Type checking                  |
   | `@biomejs/biome`                    | 2.5.1   | Formatting + linting           |
-  | `tailwindcss`                       | 4.3.1   | Utility CSS                    |
-  | `@tailwindcss/vite`                 | 4.3.1   | TailwindCSS Vite plugin        |
-  | `daisyui`                           | 5.5.23  | UI components                  |
+  | `tailwindcss`                       | 4.3.2   | Utility CSS                    |
+  | `@tailwindcss/vite`                 | 4.3.2   | TailwindCSS Vite plugin        |
+  | `daisyui`                           | 5.6.6   | UI components                  |
   | `vitest`                            | 4.1.9   | Testing framework              |
   | `@testing-library/react`            | 16.3.2  | React component testing        |
   | `@testing-library/vue`              | 8.1.0   | Vue component testing          |
@@ -1527,13 +1527,13 @@ context: |
   | `jsdom`                             | 29.1.1  | DOM environment for tests      |
   | `@playwright/test`                  | 1.61.1  | E2E testing                    |
   | `drizzle-kit`                       | 0.31.10 | Migration generation           |
-  | `wrangler`                          | 4.104.0 | Cloudflare Workers CLI         |
-  | `@types/node`                       | 26.0.0  | Node type definitions          |
+  | `wrangler`                          | 4.106.0 | Cloudflare Workers CLI         |
+  | `@types/node`                       | 26.0.1  | Node type definitions          |
   | `@types/pg`                         | 8.20.0  | PostgreSQL type definitions    |
   | `@types/react` / `@types/react-dom` | 19.2.x  | React type definitions         |
 
-  > **Note:** `vite` is pinned to `^7` via `package.json` `overrides`; Node is pinned to
-  > `24.17.0` via `engines`. `postinstall` runs `pnpm typecheck`.
+  > **Note:** Vite 8 is resolved transitively via Astro 7; Node is pinned to `24.18.0` via
+  > `engines`. `postinstall` runs `pnpm typecheck`.
 
   ### External Documentation
 

@@ -3,7 +3,7 @@
 	"type": "module",
 	"version": "0.0.1",
 	"engines": {
-		"node": "24.17.0"
+		"node": "24.18.0"
 	},
 	"scripts": {
 		"postinstall": "pnpm typecheck",
@@ -17,52 +17,49 @@
 		"test:e2e": "playwright test"
 	},
 	"dependencies": {
-		"@astrojs/cloudflare": "^14.0.0",
+		"@astrojs/cloudflare": "^14.0.2",
 		"@astrojs/mdx": "^7.0.0",
 		"@astrojs/react": "^6.0.0",
 		"@astrojs/solid-js": "^7.0.0",
 		"@astrojs/vue": "^7.0.0",
 		"@hono/zod-validator": "^0.8.0",
-		"@lucide/vue": "^1.21.0",
-		"astro": "^7.0.2",
+		"@lucide/vue": "^1.22.0",
+		"astro": "^7.0.4",
 		"awilix": "^13.0.5",
 		"bcryptjs": "^3.0.3",
 		"drizzle-orm": "^0.45.2",
 		"hono": "^4.12.27",
 		"hono-rate-limiter": "^0.5.3",
-		"lucide-react": "^1.21.0",
-		"lucide-solid": "^1.21.0",
+		"lucide-react": "^1.22.0",
+		"lucide-solid": "^1.22.0",
 		"postgres": "^3.4.9",
 		"react": "^19.2.7",
 		"react-dom": "^19.2.7",
 		"solid-js": "^1.9.13",
-		"vue": "^3.5.38",
+		"vue": "^3.5.39",
 		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.1",
 		"@playwright/test": "^1.61.1",
 		"@solidjs/testing-library": "^0.8.10",
-		"@tailwindcss/vite": "^4.3.1",
+		"@tailwindcss/vite": "^4.3.2",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/react": "^16.3.2",
 		"@testing-library/user-event": "^14.6.1",
 		"@testing-library/vue": "^8.1.0",
-		"@types/node": "^26.0.0",
+		"@types/node": "^26.0.1",
 		"@types/pg": "^8.20.0",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
 		"@vue/test-utils": "^2.4.11",
-		"daisyui": "^5.5.23",
+		"daisyui": "^5.6.6",
 		"drizzle-kit": "^0.31.10",
 		"jsdom": "^29.1.1",
-		"tailwindcss": "^4.3.1",
+		"tailwindcss": "^4.3.2",
 		"typescript": "^6.0.3",
 		"vitest": "^4.1.9",
-		"wrangler": "^4.104.0"
-	},
-	"overrides": {
-		"vite": "^7"
+		"wrangler": "^4.106.0"
 	}
 }
