@@ -7,20 +7,20 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 ## Key Features
 
 ### Frontend
-- **Astro 7.0+** — Server-first Islands Architecture that ships minimal client JS
+- **Astro 7.2+** — Server-first Islands Architecture that ships minimal client JS
 - **Multi-framework islands** — React 19, Vue 3, and SolidJS components hydrated via `client:*` directives (scoped by folder: `**/react/*`, `**/vue/*`, `**/solid/*`); pick the framework **performance-first**, fall back to the best-compatibility framework when a required library demands it
 - **MDX** — `@astrojs/mdx` 7+ for content pages/components (`.mdx`) with island support
-- **TypeScript 6.0+** — Strict type safety (`astro/tsconfigs/strict`), **no `any` type allowed**
+- **TypeScript 7.0+** — Strict type safety (`astro/tsconfigs/strict`), **no `any` type allowed**
 - **TailwindCSS 4.3+** — Utility-first CSS with mobile-first responsive design (`@tailwindcss/vite`)
 - **Semantic HTML & ARIA** — Accessibility (skip links, keyboard nav, focus management) and SEO
-- **DaisyUI 5.6+** — UI components with customizable themes (default: **light**)
+- **DaisyUI 5.7+** — UI components with customizable themes (default: **light**)
 - **Lucide icons** — `lucide-react`, `@lucide/vue`, and `lucide-solid`
 - **i18n-ready** — Astro built-in i18n routing + i18next (not yet wired in)
 - **Form Layouts** — Following [TailwindCSS form layouts](https://tailwindcss.com/plus/ui-blocks/application-ui/forms/form-layouts)
 
 ### Backend
-- **Hono 4.12+** — Fast, edge-native API framework mounted in `src/app.ts` (delegates SSR to Astro)
-- **TypeScript 6.0+** — Type-safe backend, **no `any` type allowed**
+- **Hono 4.13+** — Fast, edge-native API framework mounted in `src/app.ts` (delegates SSR to Astro)
+- **TypeScript 7.0+** — Type-safe backend, **no `any` type allowed**
 - **i18n-ready** — i18next with Hono for API messages (not yet wired in)
 - **CSRF Protection** — Hono `csrf()` middleware for all mutation endpoints
 - **CORS Protection** — Configurable origins via `CORS_ALLOWED_ORIGINS` in `wrangler.jsonc`
@@ -40,9 +40,9 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Theme & Language Selector** — Built into the main layout with DaisyUI themes
 
 ### Testing
-- **Vitest 4.1+** — Unit + integration testing via Astro's `getViteConfig` (`vitest.config.ts`)
+- **Vitest 4.1+** — Unit + integration testing via `defineConfig` from `vitest/config` (`vitest.config.ts`)
 - **Testing Library (per framework)** — `@testing-library/react`, `@testing-library/vue`, `@solidjs/testing-library`
-- **Playwright 1.61+** — End-to-end testing across Chromium, Firefox, WebKit
+- **Playwright 1.62+** — End-to-end testing across Chromium, Firefox, WebKit
 - **90%+ Coverage** — Target coverage (add `@vitest/coverage-v8` + `thresholds` to enforce)
 - **Playwright E2E Data Prefix** — All E2E test data input MUST use the prefix `from Playwright-E2E`
 - **Comprehensive Testing** — Component, API, utility, integration, and E2E tests
@@ -52,7 +52,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Biome.js 2.5+** — Fast formatting and linting
 - **Docker Compose** — Local PostgreSQL for Hyperdrive development
 - **OpenSpec** — Specification-driven development workflow
-- **Wrangler 4.106+** — Cloudflare CLI for development and deployment
+- **Wrangler 4.122+** — Cloudflare CLI for development and deployment
 
 ### Cloudflare Services
 - **D1** — SQLite database at the edge (separate schema in `db/d1/`)
@@ -90,7 +90,7 @@ Before starting, ensure you have the following installed:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **Node.js** | 24.18+ | JavaScript runtime (pinned in `engines`) |
+| **Node.js** | 24.19+ | JavaScript runtime (pinned in `engines`) |
 | **PNPM** | 11+ | Package manager |
 | **Docker** | Latest | Local PostgreSQL for Hyperdrive |
 | **Wrangler CLI** | Latest | Cloudflare deployments |
@@ -127,12 +127,12 @@ pnpm install
 ```
 
 This installs all project dependencies including:
-- Astro 7.0+ + adapters (`@astrojs/cloudflare` 14.0+, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
-- React 19, Vue 3.5+, SolidJS 1.9+, TypeScript 6
-- TailwindCSS 4.3+, DaisyUI 5.6+, Lucide 1.22+ (react / vue / solid)
-- Hono 4.12+, Drizzle ORM 0.45+, Zod 4
-- Vitest 4.1+ + Testing Library (react / vue / solid), jsdom, Playwright 1.61+
-- Awilix 13+ (dependency injection), Wrangler 4.106+
+- Astro 7.2+ + adapters (`@astrojs/cloudflare` 14.2+, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
+- React 19, Vue 3.5+, SolidJS 1.9+, TypeScript 7
+- TailwindCSS 4.3+, DaisyUI 5.7+, Lucide 1.31+ (react / vue / solid)
+- Hono 4.13+, Drizzle ORM 0.45+, Zod 4
+- Vitest 4.1+ + Testing Library (react / vue / solid), jsdom 30, Playwright 1.62+
+- Awilix 13+ (dependency injection), Wrangler 4.122+
 
 > **Note:** `postinstall` runs `pnpm typecheck` (`wrangler types && tsc -b`), so the first install also generates `worker-configuration.d.ts`.
 
@@ -308,15 +308,15 @@ pnpm test
 pnpm test:e2e
 ```
 
-> **Note:** Only `test` and `test:e2e` exist in `package.json`. `jsdom` is installed; wire
-> `environment: "jsdom"` in `vitest.config.ts`. For coverage/UI, add `@vitest/coverage-v8` plus
+> **Note:** Only `test` and `test:e2e` exist in `package.json`. `vitest.config.ts` already sets
+> `environment: "jsdom"`. For coverage/UI, add `@vitest/coverage-v8` plus
 > scripts like `test:cov` (`vitest run --coverage`) and `test:ui` (`vitest --ui`).
 
 ### Coverage Requirements
 
 - **Target coverage: 90%** for all metrics (statements, branches, functions, lines)
 - To enforce it, add `@vitest/coverage-v8` and a `coverage.thresholds` block to `vitest.config.ts`
-  (`getViteConfig` from `astro/config`; `jsdom` is installed but `environment` / `setupFiles` are not configured yet)
+  (`defineConfig` from `vitest/config`; `environment: "jsdom"` is set; add `setupFiles` for jest-dom)
 - Tests are located in `__tests__/` directories alongside source files
 - Use `*.test.ts` or `*.test.tsx` for unit tests
 - Use `*.integration.test.ts` for integration tests
@@ -391,7 +391,7 @@ npx wrangler versions deploy
 ├── package.json                  # Dependencies and scripts (PNPM)
 ├── playwright.config.ts          # Playwright E2E configuration
 ├── tsconfig.json                 # TypeScript config (extends astro/tsconfigs/strict)
-├── vitest.config.ts              # Vitest config (getViteConfig from astro/config)
+├── vitest.config.ts              # Vitest config (defineConfig from vitest/config)
 ├── wrangler.jsonc                # Cloudflare Workers configuration
 └── worker-configuration.d.ts     # Auto-generated Cloudflare binding types
 ```

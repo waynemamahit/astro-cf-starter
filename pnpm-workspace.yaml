@@ -1,33 +1,6 @@
 allowBuilds:
   esbuild: true
-  sharp: true
   workerd: true
 minimumReleaseAgeExclude:
-  - '@astrojs/markdown-satteri@0.3.2'
-  - '@biomejs/biome@2.5.1'
-  - '@biomejs/cli-darwin-arm64@2.5.1'
-  - '@biomejs/cli-darwin-x64@2.5.1'
-  - '@biomejs/cli-linux-arm64-musl@2.5.1'
-  - '@biomejs/cli-linux-arm64@2.5.1'
-  - '@biomejs/cli-linux-x64-musl@2.5.1'
-  - '@biomejs/cli-linux-x64@2.5.1'
-  - '@biomejs/cli-win32-arm64@2.5.1'
-  - '@biomejs/cli-win32-x64@2.5.1'
-  - '@playwright/test@1.61.1'
-  - astro@7.0.4
-  - miniflare@4.20260630.0
-  - playwright-core@1.61.1
-  - playwright@1.61.1
-  - wrangler@4.106.0
-  - '@astrojs/cloudflare@14.0.2'
-  - '@astrojs/compiler-binding-darwin-arm64@0.3.0'
-  - '@astrojs/compiler-binding-darwin-x64@0.3.0'
-  - '@astrojs/compiler-binding-linux-arm64-gnu@0.3.0'
-  - '@astrojs/compiler-binding-linux-arm64-musl@0.3.0'
-  - '@astrojs/compiler-binding-linux-x64-gnu@0.3.0'
-  - '@astrojs/compiler-binding-linux-x64-musl@0.3.0'
-  - '@astrojs/compiler-binding-wasm32-wasi@0.3.0'
-  - '@astrojs/compiler-binding-win32-arm64-msvc@0.3.0'
-  - '@astrojs/compiler-binding-win32-x64-msvc@0.3.0'
-  - '@astrojs/compiler-binding@0.3.0'
-  - '@astrojs/compiler-rs@0.3.0'
+  - miniflare@5.20260811.0-alpha
+  - wrangler@4.122.0
