@@ -1,25 +1,15 @@
 ---
-import ReactCounter from "../components/react/Counter";
-import SolidCounter from "../components/solid/Counter";
-import VueCounter from "../components/vue/CounterView.vue";
-import Welcome from "../components/Welcome.astro";
+import CanvasApp from "../components/react/CanvasApp";
+import UserGuide from "../components/react/UserGuide";
 import Layout from "../layouts/Layout.astro";
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
 <Layout>
-	<Welcome />
-	<section class="mx-auto max-w-4xl px-4 py-16">
-		<h2 class="mb-2 text-center text-2xl font-bold">Multi-framework islands</h2>
-		<p class="mb-8 text-center text-base-content/70">
-			The same Counter rendered as interactive islands in React, Vue, and Solid.
-		</p>
-		<div class="grid gap-6 sm:grid-cols-3">
-			<ReactCounter client:load start={1} />
-			<VueCounter client:load start={2} />
-			<SolidCounter client:load start={3} />
+	<div class="mx-auto max-w-6xl px-4 py-6">
+		<h1 class="mb-4 text-center text-3xl font-bold">Interactive Canvas</h1>
+		<CanvasApp client:load />
+		<div class="mt-4">
+			<UserGuide />
 		</div>
-	</section>
+	</div>
 </Layout>
