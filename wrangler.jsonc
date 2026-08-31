@@ -3,7 +3,7 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-	"name": "astro-cf-starter",
+	"name": "astro-cf-starter-staging",
 	"compatibility_date": "2026-08-28",
 	"compatibility_flags": ["global_fetch_strictly_public", "nodejs_compat"],
 	"main": "src/app.ts",
@@ -41,7 +41,7 @@
 	"d1_databases": [
 		{
 			"binding": "D1",
-			"database_name": "production_db",
+			"database_name": "staging_db",
 			"database_id": "${D1_DB_ID}"
 		}
 	],
