@@ -2,5 +2,13 @@ allowBuilds:
   esbuild: true
   workerd: true
 minimumReleaseAgeExclude:
-  - miniflare@5.20260811.0-alpha
-  - wrangler@4.122.0
+  - '@astrojs/cloudflare@14.2.6'
+  - '@astrojs/internal-helpers@0.11.0'
+  - '@astrojs/markdown-satteri@0.4.0'
+  - '@astrojs/mdx@8.0.0'
+  - '@astrojs/react@6.0.5'
+  - '@hono/zod-validator@0.9.1'
+  - '@lucide/vue@1.38.0'
+  - astro@7.2.10
+  - lucide-react@1.38.0
+  - lucide-solid@1.38.0

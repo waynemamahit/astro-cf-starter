@@ -9,7 +9,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 ### Frontend
 - **Astro 7.2+** — Server-first Islands Architecture that ships minimal client JS
 - **Multi-framework islands** — React 19, Vue 3, and SolidJS components hydrated via `client:*` directives (scoped by folder: `**/react/*`, `**/vue/*`, `**/solid/*`); pick the framework **performance-first**, fall back to the best-compatibility framework when a required library demands it
-- **MDX** — `@astrojs/mdx` 7+ for content pages/components (`.mdx`) with island support
+- **MDX** — `@astrojs/mdx` 8+ for content pages/components (`.mdx`) with island support
 - **TypeScript 7.0+** — Strict type safety (`astro/tsconfigs/strict`), **no `any` type allowed**
 - **TailwindCSS 4.3+** — Utility-first CSS with mobile-first responsive design (`@tailwindcss/vite`)
 - **Semantic HTML & ARIA** — Accessibility (skip links, keyboard nav, focus management) and SEO
@@ -52,7 +52,7 @@ A production-ready full-stack starter template built on **Astro (Islands Archite
 - **Biome.js 2.5+** — Fast formatting and linting
 - **Docker Compose** — Local PostgreSQL for Hyperdrive development
 - **OpenSpec** — Specification-driven development workflow
-- **Wrangler 4.122+** — Cloudflare CLI for development and deployment
+- **Wrangler 4.127+** — Cloudflare CLI for development and deployment
 
 ### Cloudflare Services
 - **D1** — SQLite database at the edge (separate schema in `db/d1/`)
@@ -90,7 +90,7 @@ Before starting, ensure you have the following installed:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| **Node.js** | 24.19+ | JavaScript runtime (pinned in `engines`) |
+| **Node.js** | 24.20+ | JavaScript runtime (pinned in `engines`) |
 | **PNPM** | 11+ | Package manager |
 | **Docker** | Latest | Local PostgreSQL for Hyperdrive |
 | **Wrangler CLI** | Latest | Cloudflare deployments |
@@ -127,12 +127,12 @@ pnpm install
 ```
 
 This installs all project dependencies including:
-- Astro 7.2+ + adapters (`@astrojs/cloudflare` 14.2+, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 7)
+- Astro 7.2+ + adapters (`@astrojs/cloudflare` 14.2+, `@astrojs/react` 6, `@astrojs/vue` 7, `@astrojs/solid-js` 7, `@astrojs/mdx` 8)
 - React 19, Vue 3.5+, SolidJS 1.9+, TypeScript 7
-- TailwindCSS 4.3+, DaisyUI 5.7+, Lucide 1.31+ (react / vue / solid)
+- TailwindCSS 4.3+, DaisyUI 5.7+, Lucide 1.38+ (react / vue / solid)
 - Hono 4.13+, Drizzle ORM 0.45+, Zod 4
 - Vitest 4.1+ + Testing Library (react / vue / solid), jsdom 30, Playwright 1.62+
-- Awilix 13+ (dependency injection), Wrangler 4.122+
+- Awilix 13+ (dependency injection), Wrangler 4.127+
 
 > **Note:** `postinstall` runs `pnpm typecheck` (`wrangler types && tsc -b`), so the first install also generates `worker-configuration.d.ts`.
 
